@@ -28,7 +28,7 @@ module.exports = {
       },
       middleInitial: {
         type: Sequelize.STRING(2),
-        allowNull: false
+        allowNull: true
       },
       birthdate: {
         type: Sequelize.DATEONLY,

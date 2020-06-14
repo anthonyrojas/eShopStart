@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 notEmpty: {
                     msg: 'Password must be provided.'
+                },
+                min: {
+                    args: [6],
+                    msg: 'Password must be at least 6 characters.'
+                },
+                max: {
+                    args: [20],
+                    msg: 'Password cannot exceed 20 characters in length.'
                 }
             }
         },
@@ -42,9 +50,13 @@ module.exports = (sequelize, DataTypes) => {
                 notEmpty: {
                     msg: 'First name must be provided.'
                 },
-                isAlpha: {
+                is: {
+                    args: ["^[A-Za-z]+$",'i'],
                     msg: 'First name must consist of only letters.'
                 }
+                // isAlpha: {
+                //     msg: 'First name must consist of only letters.'
+                // }
             }
         },
         lastName: {
@@ -57,7 +69,10 @@ module.exports = (sequelize, DataTypes) => {
                 notEmpty: {
                     msg: 'Last name must be provided.'
                 },
-                isAlpha: 'First name must consist of only letters.'
+                is: {
+                    args: ["^[A-Za-z]+$",'i'],
+                    msg: 'Last name must consist of only letters.'
+                }
             }
         },
         middleInitial: {

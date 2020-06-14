@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 function createToken(id, email, role, secret, isRefresh) {
     return new Promise((resolve, reject)=>{
-        const 
         //check if we are generating a refresh token or access token
         if(isRefresh){
             jwt.sign({

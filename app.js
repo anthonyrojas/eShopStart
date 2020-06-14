@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const db = require('./models');
+const routes = require('./routes')
 const server = http.createServer(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
@@ -31,6 +32,8 @@ db.sequelize.authenticate()
 .catch(err => {
     console.error(err);
 });
+
+routes(app);
 
 server.listen(process.env.SERVER_PORT, ()=>{
     console.log(`Listening on port ${process.env.SERVER_PORT}`);
