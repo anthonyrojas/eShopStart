@@ -144,3 +144,43 @@ exports.getProduct = async (req, res) => {
         })
     }
 }
+
+exports.getProducts = async (req, res) => {
+    try{
+        const products = await Product.findAll({
+            attributes: ['id', 'name', 'price', 'isActive']
+        });
+        return res.status(200).json({
+            statusMessage: 'Products returned.',
+            products
+        });
+    }catch(e){
+
+    }
+}
+
+exports.deleteProduct = async (req, res) => {
+    const userRole = res.locals.role;
+    const allowedRoles = ['SuperAdmin', 'Admin'];
+    if(!allowedRoles.includes(userRole)){
+        return res.status(403).json({
+            type: 'AuthorizationError',
+            statusMessage: 'You are not authorized to add a product.'
+        });
+    }
+    try{
+        const deletedRows = Product.destroy({
+            where: {
+                id: req.params.id
+            }
+        });
+        return res.status(200).json({
+            statusMessage: 'Product deleted.'
+        })
+    }catch(e){
+        return res.status(400).json({
+            type: 'DeleteError',
+            statusMessage: 'Unable to delete product at this time, or this product no longer exists.'
+        });
+    }
+}
