@@ -70,3 +70,40 @@ exports.validateLoginRequest = (req) => {
         errors: errorCollection
     }
 }
+
+exports.validateProductRequest = (req) => {
+    let errorCollection = {};
+    let errorExists = false;
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.name)){
+        errorCollection.name = 'Product name is required.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.description)){
+        errorCollection.description = 'Product description is required.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.price)){
+        errorCollection.price = 'Product price is required.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.isDeliverable)){
+        errorCollection.isDeliverable = 'Must mark if the product is deliverable or not.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.isDigital)){
+        errorCollection.isDigital = 'Must mark if the product is digital.';
+        errorExists = true;
+    }
+    if(!req.body.isDigital && helpers.isUndefinedOrNullOrEmpty(req.body.weight)){
+        errorCollection.weight = 'Product weight is required. It must be entered in ounces.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.isActive)){
+        errorCollection.isActive = 'Product must be marked active or non-active';
+        errorExists = true;
+    }
+    return {
+        errorExists,
+        errors: errorCollection
+    };
+}

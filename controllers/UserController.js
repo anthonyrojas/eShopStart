@@ -125,7 +125,7 @@ exports.addAccount = async (req, res, next) => {
                 })
             }
         }
-        return res.status(400).json({
+        return res.status(500).json({
             type: e.name,
             statusMessage: 'Failed to create account.'
         });
