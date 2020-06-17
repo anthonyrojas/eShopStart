@@ -5,6 +5,10 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING(255),
             allowNull: false,
+            unique: {
+                args: true,
+                msg: 'Product name is already in use.'
+            },
             validate: {
                 notNull: {
                     msg: 'The name of the product cannot be empty.'
@@ -35,6 +39,18 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 notEmpty: {
                     msg: 'Product price cannot be empty.'
+                }
+            }
+        },
+        slug: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: 'Product slug cannot be empty.'
+                },
+                notEmpty: {
+                    msg: 'Product slug cannot be empty.'
                 }
             }
         },

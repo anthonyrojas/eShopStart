@@ -92,10 +92,10 @@ exports.addAccount = async (req, res, next) => {
         }
         const hashedPassword = await generateHash(req.body.password, parseInt(process.env.SALT_ROUNDS));
         const user = await User.create({
-            email: req.body.email,
+            email: req.body.email.trim(),
             password: hashedPassword,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
+            firstName: req.body.firstName.trim(),
+            lastName: req.body.lastName.trim(),
             middleInitial: req.body.middleInitial || null,
             birthdate: req.body.birthdate,
             role: userRole
@@ -159,10 +159,10 @@ exports.updateUser = async (req, res, next) => {
     }
     try{
         const updatedRows = await User.update({
-            email: req.body.email,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            middleInitial: req.body.middleInitial,
+            email: req.body.email.trim(),
+            firstName: req.body.firstName.trim(),
+            lastName: req.body.lastName.trim(),
+            middleInitial: req.body.middleInitial || null,
             birthdate: req.body.birthdate,
             role: userRole
         }, {

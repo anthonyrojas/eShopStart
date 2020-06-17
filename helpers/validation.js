@@ -7,7 +7,7 @@ exports.validateUserRequest = (req, operation)=>{
         errorCollection.id = 'User id not specified';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.email)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.email.trim())){
         errorCollection.email = 'Email is required.';
         errorExists = true;
     }
@@ -15,11 +15,11 @@ exports.validateUserRequest = (req, operation)=>{
         errorCollection.password = 'Password is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.firstName)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.firstName.trim())){
         errorCollection.firstName = 'First name is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.lastName)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.lastName.trim())){
         errorCollection.lastName = 'Last name is required.';
         errorExists = true;
     }
@@ -57,7 +57,7 @@ exports.validatePasswordChangeRequest = (req) => {
 exports.validateLoginRequest = (req) => {
     let errorCollection = {};
     let errorExists = false;
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.email)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.email.trim())){
         errorCollection.email = 'Email must be provided for login.';
         errorExists = true;
     }
@@ -74,11 +74,11 @@ exports.validateLoginRequest = (req) => {
 exports.validateProductRequest = (req) => {
     let errorCollection = {};
     let errorExists = false;
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.name)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.name.trim())){
         errorCollection.name = 'Product name is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.description)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.description.trim())){
         errorCollection.description = 'Product description is required.';
         errorExists = true;
     }

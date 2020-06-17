@@ -11,7 +11,8 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING(255),
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       description: {
         type: Sequelize.TEXT,
@@ -20,6 +21,10 @@ module.exports = {
       price: {
         type: Sequelize.DECIMAL(10,2),
         allowNull: true
+      },
+      slug: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
       },
       isDeliverable: {
         type: Sequelize.BOOLEAN,

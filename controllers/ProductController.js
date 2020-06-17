@@ -23,10 +23,12 @@ exports.addProduct = async (req, res)=>{
         });
     }
     try{
+        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
         const product = await Product.create({
-            name: req.body.name,
-            description: req.body.description,
+            name: req.body.name.trim(),
+            description: req.body.description.trim(),
             price: req.body.price,
+            slug: slug,
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
             weight: req.body.weight || null,
@@ -83,10 +85,12 @@ exports.updateProduct = async (req, res) => {
         });
     }
     try{
+        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
         const updatedRows = await Product.update({
-            name: req.body.name,
-            description: req.body.description,
+            name: req.body.name.trim(),
+            description: req.body.description.trim(),
             price: req.body.price,
+            slug: slug,
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
             weight: req.body.weight,
@@ -148,7 +152,7 @@ exports.getProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
     try{
         const products = await Product.findAll({
-            attributes: ['id', 'name', 'price', 'isActive']
+            attributes: ['id', 'name', 'slug', 'price', 'isActive']
         });
         return res.status(200).json({
             statusMessage: 'Products returned.',
@@ -182,5 +186,24 @@ exports.deleteProduct = async (req, res) => {
             type: 'DeleteError',
             statusMessage: 'Unable to delete product at this time, or this product no longer exists.'
         });
+    }
+}
+
+exports.getProductBySlug = async (req, res) => {
+    try{
+        const product = await Product.findOne({
+            where: {
+                slug: req.params.slug
+            }
+        });
+        return res.status(200).json({
+            statusMessage: 'Product returned.',
+            product: product
+        });
+    }catch(e){
+        return res.status(404).json({
+            type: 'NotFoundError',
+            statusMessage: 'Unable to find or retrieve product.'
+        })
     }
 }

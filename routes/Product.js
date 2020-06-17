@@ -6,4 +6,5 @@ module.exports = (router) => {
     router.put('/:id', Auth.validateToken, ProductController.updateProduct);
     router.get('/', ProductController.getProducts);
     router.delete('/:id', Auth.validateToken, ProductController.deleteProduct);
+    router.get('/:slug', ProductController.getProductBySlug);
 }
