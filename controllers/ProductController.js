@@ -5,7 +5,7 @@ const Sequelize = require('sequelize');
 const Product = db.Product;
 const validators = require('../helpers/validation');
 
-exports.addProduct = async (req, res)=>{
+exports.addProduct = async (req, res, next)=>{
     const userRole = res.locals.role;
     const allowedRoles = ['SuperAdmin', 'Admin'];
     if(!allowedRoles.includes(userRole)){
@@ -41,33 +41,12 @@ exports.addProduct = async (req, res)=>{
             product: product.toJSON()
         });
     }catch(e){
-        if(e.name.includes(Sequelize.ValidationError.name)){
-            let errorCollection = {};
-            if(e !== undefined && Array.isArray(e.errors)){
-                e.errors.forEach(element => {
-                    errorCollection[element.path] = element.message;
-                });
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: e.message,
-                    errors: errorCollection
-                })
-            }else{
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: 'There are errors in your submission.',
-                    errors: errorCollection
-                })
-            }
-        }
-        return res.status(500).json({
-            type: e.name,
-            statusMessage: 'Failed to create product.'
-        });
+        res.locals.errOperation='db';
+        next(e);
     }
 }
 
-exports.updateProduct = async (req, res) => {
+exports.updateProduct = async (req, res, next) => {
     const userRole = res.locals.role;
     const allowedRoles = ['SuperAdmin', 'Admin'];
     if(!allowedRoles.includes(userRole)){
@@ -102,35 +81,20 @@ exports.updateProduct = async (req, res) => {
                 id: req.params.id
             }
         });
+        if(updatedRows[0] === 0){
+            return res.status(404).json({
+                type: 'NotFoundError',
+                statusMessage: 'Unable to update product because it was not found.'
+            });
+        }
         const updatedProduct = await Product.findByPk(req.params.id);
         return res.status(200).json({
             statusMessage: 'Product updated.',
             product: updatedProduct.toJSON()
         });
     }catch(e){
-        if(e.name.includes(Sequelize.ValidationError.name)){
-            let errorCollection = {};
-            if(e !== undefined && Array.isArray(e.errors)){
-                e.errors.forEach(element => {
-                    errorCollection[element.path] = element.message;
-                });
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: e.message,
-                    errors: errorCollection
-                })
-            }else{
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: 'There are errors in your submission.',
-                    errors: errorCollection
-                })
-            }
-        }
-        return res.status(500).json({
-            type: e.name,
-            statusMessage: 'Failed to update product.'
-        });
+        res.locals.errOperation = 'db';
+        next(e);
     }
 }
 
@@ -159,7 +123,10 @@ exports.getProducts = async (req, res) => {
             products
         });
     }catch(e){
-
+        return res.status(400).json({
+            type: e.name,
+            statusMessage: 'Unable to retrieve products'
+        });
     }
 }
 
@@ -173,7 +140,7 @@ exports.deleteProduct = async (req, res) => {
         });
     }
     try{
-        const deletedRows = Product.destroy({
+        const deletedRows = await Product.destroy({
             where: {
                 id: req.params.id
             }

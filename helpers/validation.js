@@ -107,3 +107,20 @@ exports.validateProductRequest = (req) => {
         errors: errorCollection
     };
 }
+
+exports.validateCategoryRequest = (req, operation) => {
+    let errorExists = false;
+    let errorCollection = {};
+    if(operation === 'update' && helpers.isUndefinedOrNullOrEmpty(req.body.id)){
+        errorCollection.id = 'Category id is required.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.name)){
+        errorCollection.name = 'Category name is required.';
+        errorExists = true;
+    }
+    return {
+        errorExists,
+        errors: errorCollection
+    };
+}

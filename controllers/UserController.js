@@ -37,7 +37,7 @@ exports.beginLogin = async (req, res, next) => {
     try{
         const user = await User.findOne({
             where: {
-                email: req.body.email
+                email: req.body.email.toLowerCase()
         
             },
             attributes: ['id', 'email', 'password', 'role']
@@ -50,7 +50,7 @@ exports.beginLogin = async (req, res, next) => {
         }
         const authenticate = await compareHash(req.body.password, user.password);
         res.locals.userId = user.id;
-        res.locals.email = user.email;
+        res.locals.email = user.email.toLowerCase();
         res.locals.role = user.role;
         next();
     }catch(e){
@@ -92,7 +92,7 @@ exports.addAccount = async (req, res, next) => {
         }
         const hashedPassword = await generateHash(req.body.password, parseInt(process.env.SALT_ROUNDS));
         const user = await User.create({
-            email: req.body.email.trim(),
+            email: req.body.email.trim().toLowerCase(),
             password: hashedPassword,
             firstName: req.body.firstName.trim(),
             lastName: req.body.lastName.trim(),
@@ -106,29 +106,8 @@ exports.addAccount = async (req, res, next) => {
             user: user.toJSON()
         });
     }catch(e){
-        if(e.name.includes(Sequelize.ValidationError.name)){
-            let errorCollection = {};
-            if(e !== undefined && Array.isArray(e.errors)){
-                e.errors.forEach(element => {
-                    errorCollection[element.path] = element.message;
-                });
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: e.message,
-                    errors: errorCollection
-                })
-            }else{
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: 'There are errors in your submission.',
-                    errors: errorCollection
-                })
-            }
-        }
-        return res.status(500).json({
-            type: e.name,
-            statusMessage: 'Failed to create account.'
-        });
+        res.locals.errOperation = 'db';
+        next(e);
     }
 }
 
@@ -159,7 +138,7 @@ exports.updateUser = async (req, res, next) => {
     }
     try{
         const updatedRows = await User.update({
-            email: req.body.email.trim(),
+            email: req.body.email.trim().toLowerCase(),
             firstName: req.body.firstName.trim(),
             lastName: req.body.lastName.trim(),
             middleInitial: req.body.middleInitial || null,
@@ -170,6 +149,12 @@ exports.updateUser = async (req, res, next) => {
                 id: userId
             }
         });
+        if(updatedRows[0] === 0){
+            return res.status(404).json({
+                type: 'NotFoundError',
+                statusMessage: 'Unable to update user because it was not found.'
+            });
+        }
         const updatedUser = await User.findByPk(userId);
         updatedUser.password = undefined;
         return res.status(200).json({
@@ -177,29 +162,8 @@ exports.updateUser = async (req, res, next) => {
             user: updatedUser.toJSON()
         });
     }catch(e){
-        if(e.name.includes(Sequelize.ValidationError.name)){
-            let errorCollection = {};
-            if(e !== undefined && Array.isArray(e.errors)){
-                e.errors.forEach(element => {
-                    errorCollection[element.path] = element.message;
-                });
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: 'There are errors in your submission.',
-                    errors: errorCollection
-                })
-            }else{
-                return res.status(400).json({
-                    type: e.name,
-                    statusMessage: 'There are errors in your submission.',
-                    errors: errorCollection
-                })
-            }
-        }
-        return res.status(400).json({
-            type: e.name,
-            statusMessage: 'Failed to update account.'
-        });
+        res.locals.errOperation = 'db';
+        next(e);
     }
 }
 

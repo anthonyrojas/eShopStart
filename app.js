@@ -4,7 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const db = require('./models');
-const routes = require('./routes')
+const routes = require('./routes');
+const e = require('express');
+const Sequelize = require('sequelize');
 const server = http.createServer(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
@@ -17,14 +19,6 @@ app.use((req, res, next)=>{
     next();
 });
 
-app.use((err, req, res, next)=>{
-    if(err.message){
-        return res.status(400).json({message: err.message});
-    }else{
-        return res.status(500).json({message: 'Oops! Something went wrong'});
-    }
-});
-
 db.sequelize.authenticate()
 .then(()=>{
     console.log('Database authentication successful.')
@@ -34,6 +28,38 @@ db.sequelize.authenticate()
 });
 
 routes(app);
+
+app.use((err, req, res, next)=>{
+    if(err.name.includes(Sequelize.ValidationError.name)){
+        let errorCollection = {};
+        if(e !== undefined && Array.isArray(err.errors)){
+            err.errors.forEach(element => {
+                errorCollection[element.path] = element.message;
+            });
+            return res.status(400).json({
+                type: err.name,
+                statusMessage: 'There are errors in your submission.',
+                errors: errorCollection
+            });
+        }else{
+            return res.status(400).json({
+                type: err.name,
+                statusMessage: 'There are errors in your submission.',
+                errors: errorCollection
+            });
+        }
+    }else if(res.locals.errOperation === 'dbAdd') {
+        return res.status(500).json({
+            type: err.name, 
+            statusMessage: 'Failed to create resource.'
+        });
+    }else{
+        return res.status(500).json({
+            type: err.name,
+            message: 'Oops! Something went wrong'
+        });
+    }
+});
 
 server.listen(process.env.SERVER_PORT, ()=>{
     console.log(`Listening on port ${process.env.SERVER_PORT}`);
