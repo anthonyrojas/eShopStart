@@ -124,3 +124,20 @@ exports.validateCategoryRequest = (req, operation) => {
         errors: errorCollection
     };
 }
+
+exports.validateInventoryRequest = (req) => {
+    let errorExists =  false;
+    let errorCollection = {};
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.amount)){
+        errorCollection.amount = 'Inventory amount is required.';
+        errorExists = true;
+    }
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.productId)){
+        errorCollection.productId = 'Product id is required.';
+        errorExists = true;
+    }
+    return {
+        errorExists,
+        errors: errorCollection
+    }
+}

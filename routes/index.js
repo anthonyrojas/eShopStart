@@ -8,6 +8,9 @@ const ProductRoutes = require('./Product');
 const CategoryRouter = express.Router();
 const CategoryRoutes = require('./Category');
 
+const InventoryRouter = express.Router();
+const InventoryRoutes = require('./Inventory');
+
 module.exports = (app) => {
     app.get('/', (req, res)=>{
         return res.status(200).send('EShopStart is alive.');
@@ -20,4 +23,7 @@ module.exports = (app) => {
 
     app.use('/api/category', CategoryRouter);
     CategoryRoutes(CategoryRouter);
+
+    app.use('/api/inventory', InventoryRouter);
+    InventoryRoutes(InventoryRouter);
 }

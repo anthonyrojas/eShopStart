@@ -28,7 +28,7 @@ function compareHash(plainTextPassword, hashedPassword) {
 exports.beginLogin = async (req, res, next) => {
     const validationErrors = validators.validateLoginRequest(req);
     if(validationErrors.errorExists){
-        return res.status(500).json({
+        return res.status(400).json({
             type: 'ValidationError',
             statusMessage: 'There are errors in your sumbission',
             errors: validationErrors.errors            
