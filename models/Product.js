@@ -105,7 +105,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
     Product.associate = function(models){
         Product.belongsToMany(models.Category, {
-            through: 'ProductCategory'
+            through: 'ProductCategories'
         });
         Product.hasOne(models.Inventory, {
             onDelete: 'CASCADE'
