@@ -12,7 +12,10 @@ const InventoryRouter = express.Router();
 const InventoryRoutes = require('./Inventory');
 
 const ProductCategoryRouter = express.Router();
-const ProductCategoryRoutes = require('./ProductCategory')
+const ProductCategoryRoutes = require('./ProductCategory');
+
+const ProductImageRouter = express.Router();
+const ProductImageRoutes = require('./ProductImage');
 
 module.exports = (app) => {
     app.get('/', (req, res)=>{
@@ -32,4 +35,7 @@ module.exports = (app) => {
 
     app.use('/api/product-category', ProductCategoryRouter);
     ProductCategoryRoutes(ProductCategoryRouter);
+
+    app.use('/api/product-image', ProductImageRouter);
+    ProductImageRoutes(ProductImageRouter);
 }

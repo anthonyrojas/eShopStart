@@ -9,7 +9,7 @@ const e = require('express');
 const Sequelize = require('sequelize');
 const server = http.createServer(app);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({extended: true}))
 
 app.use((req, res, next)=>{
     res.header("Access-Control-Allow-Origin", "*");
@@ -56,7 +56,8 @@ app.use((err, req, res, next)=>{
     }else{
         return res.status(500).json({
             type: err.name,
-            message: 'Oops! Something went wrong'
+            statusMessage: 'Oops! Something went wrong.',
+            errorMessage: err.message
         });
     }
 });
