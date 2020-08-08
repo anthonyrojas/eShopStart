@@ -1,5 +1,7 @@
 'use strict';
 
+const OrderProduct = require("./OrderProduct");
+
 module.exports = (sequelize, DataTypes) => {
     const Order = sequelize.define('Order', {
         total: {
@@ -29,10 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
     Order.associate = function(models) {
         Order.belongsTo(models.User, {
+            foreignKey: 'userId'
         })
         Order.belongsToMany(models.Product,{
             through: 'OrderProduct'
-        })
+        });
         // Order.hasMany(models.Product, {
         // })
     }

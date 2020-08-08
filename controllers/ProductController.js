@@ -1,8 +1,8 @@
 'use strict';
 
 const db = require('../models');
-const Sequelize = require('sequelize');
 const Product = db.Product;
+const ProductImage = db.ProductImage;
 const validators = require('../helpers/validation');
 
 exports.addProduct = async (req, res, next)=>{
@@ -116,13 +116,21 @@ exports.getProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
     try{
         const products = await Product.findAll({
-            attributes: ['id', 'name', 'slug', 'price', 'isActive']
+            attributes: ['id', 'name', 'slug', 'price', 'isActive'],
+            include:{
+                model: ProductImage,
+                required: false,
+                where: {
+                    order: 1
+                }
+            }
         });
         return res.status(200).json({
             statusMessage: 'Products returned.',
             products
         });
     }catch(e){
+        console.log(e)
         return res.status(400).json({
             type: e.name,
             statusMessage: 'Unable to retrieve products'

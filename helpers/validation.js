@@ -61,7 +61,7 @@ exports.validateLoginRequest = (req) => {
         errorCollection.email = 'Email must be provided for login.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.password)){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.password.trim())){
         errorCollection.password = 'Password must be provided for login.';
         errorExists = true;
     }
@@ -82,23 +82,23 @@ exports.validateProductRequest = (req) => {
         errorCollection.description = 'Product description is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.price)){
+    if(helpers.isUndefinedOrNull(req.body.price)){
         errorCollection.price = 'Product price is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.isDeliverable)){
+    if(helpers.isUndefinedOrNull(req.body.isDeliverable)){
         errorCollection.isDeliverable = 'Must mark if the product is deliverable or not.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.isDigital)){
+    if(helpers.isUndefinedOrNull(req.body.isDigital)){
         errorCollection.isDigital = 'Must mark if the product is digital.';
         errorExists = true;
     }
-    if(!req.body.isDigital && helpers.isUndefinedOrNullOrEmpty(req.body.weight)){
+    if(!req.body.isDigital && helpers.isUndefinedOrNull(req.body.weight)){
         errorCollection.weight = 'Product weight is required. It must be entered in ounces.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.isActive)){
+    if(helpers.isUndefinedOrNull(req.body.isActive)){
         errorCollection.isActive = 'Product must be marked active or non-active';
         errorExists = true;
     }

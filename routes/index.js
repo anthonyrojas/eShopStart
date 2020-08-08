@@ -17,6 +17,9 @@ const ProductCategoryRoutes = require('./ProductCategory');
 const ProductImageRouter = express.Router();
 const ProductImageRoutes = require('./ProductImage');
 
+const OrderRouter = express.Router();
+const OrderRoutes = require('./Order');
+
 module.exports = (app) => {
     app.get('/', (req, res)=>{
         return res.status(200).send('EShopStart is alive.');
@@ -38,4 +41,7 @@ module.exports = (app) => {
 
     app.use('/api/product-image', ProductImageRouter);
     ProductImageRoutes(ProductImageRouter);
+
+    app.use('/api/order', OrderRouter);
+    OrderRoutes(OrderRouter);
 }

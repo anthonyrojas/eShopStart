@@ -152,7 +152,6 @@ exports.getProductCategories = async (req, res, next) => {
             productCategories
         });
     }catch(e){
-        console.log(e);
         return res.status(400).json({
             type: e.name,
             statusMessage: 'Failed to retrieve product categories.'

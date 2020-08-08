@@ -32,6 +32,44 @@ function deleteFromS3(s3, params){
     })
 }
 
+exports.getProductImages = async(req, res, next) => {
+    try{
+        const productImages = await ProductImage.findAll({
+            where:{
+                productId: req.params.id
+            }
+        });
+        return res.status(200).json({
+            statusMessage: 'Product images returned.',
+            productImages
+        })
+    }catch(e){
+        return res.status(404).json({
+            type: e.name,
+            statusMessage: 'Unable to retrieve the product images at this time or the images were not found for this product.'
+        });
+    }
+}
+
+exports.getProductImage = async(req, res, next) => {
+    try{
+        const productImage = await ProductImage.findOne({
+            where: {
+                productId: req.params.id
+            },
+            order: [['order', 'ASC']]
+        })
+        return res.status(200).json({
+            productImage
+        });
+    }catch(e){
+        return res.status(400).json({
+            type: e.name,
+            statusMessage: 'Failed to get product image at this time or that product does not exist.'
+        })
+    }
+}
+
 exports.addProductImage = async (req, res, next) => {
     const userRole = res.locals.role;
     const allowedRoles = ['SuperAdmin', 'Admin'];
