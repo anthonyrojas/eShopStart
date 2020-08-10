@@ -13,6 +13,18 @@ module.exports = (sequelize, DataTypes) => {
                     msg: 'Order item status must be specified.'
                 }
             }
+        },
+        amount: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: 'Order product amount cannot be empty.'
+                },
+                notEmpty:{
+                    msg: 'Order product amount cannot be empty.'
+                }
+            }
         }
     }, {});
     OrderProduct.associate = function(models){

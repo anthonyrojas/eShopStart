@@ -5,44 +5,67 @@ const { isUndefinedOrNullOrEmpty } = require('../helpers');
 const Order = db.Order;
 const OrderProduct = db.OrderProduct;
 const Product = db.Product;
+const Cart = db.Cart;
+const CartItem = db.CartItem;
 
 exports.addOrder = async(req, res, next) => {
-    const products = req.body.products;
     try{
-        const sumAmount = await Product.findAll({
-            // attributes: ['price'],
-            attributes: [
-                [db.sequelize.fn('sum', db.sequelize.col('price')), 'total']
-            ],
+        const sumQuery = await Cart.findAll({
+            attributes: [[db.sequelize.literal('SUM(price * amount)'), 'total']],
+            // attributes: ['id', 'userId'],
+            include: [{
+                model: CartItem,
+                attributes: [],
+                // attributes: ['amount'],
+                include: [{
+                    model: Product,
+                    attributes: []
+                    // attributes: ['price']
+                }]
+            }],
             where: {
-                id: products
+                userId: res.locals.userId
             },
             raw: true
         });
-        const total = sumAmount[0];
+        const sumAmount = sumQuery[0];
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: total.total * 100,
+            amount: sumAmount.total * 100,
             currency: 'usd'
         });
         const order = await Order.create({
             userId: res.locals.userId,
-            total: total.total,
+            total: sumAmount.total,
             stripePaymentId: paymentIntent.id
         });
-        const orderProductData = []
-        products.forEach((product) => {
-            orderProductData.push({orderStatus: 'Processing', OrderId: order.id, ProductId: product})
+        const cartItems = await Cart.findAll({
+            attributes: [
+                [db.Sequelize.col('CartItems.amount'), 'amount'],
+                [db.Sequelize.col('CartItems.productId'), 'productId'],
+
+            ],
+            include: [{
+                model: CartItem,
+                attributes: []
+            }],
+            where: {
+                userId: res.locals.userId
+            },
+            raw: true
         });
-        const orderProducts = await OrderProduct.bulkCreate(orderProductData);
+        const products = cartItems.map(c => ({
+            ...c,
+            orderId: order.id
+        }));
+        OrderProduct.bulkCreate(products);
         return res.status(200).json({
             clientSecret: paymentIntent.client_secret,
             order
         })
     }catch(e){
-        return res.status(500).json({
-            type: e.name,
-            statusMessage: 'Unable to create this order at this time.'
-        })
+        console.log(e)
+        res.locals.errOperation = 'db';
+        next(e);
     }
 }
 
@@ -117,6 +140,13 @@ exports.orderProcessed = async(req, res) => {
                 stripePaymentId: paymentIntent.id
             }
         });
+
+        //clear cart
+        await db.sequelize.query('DELETE FROM CartItems WHERE cartId = (SELECT id FROM Carts WHERE userId = ?)', {
+            replacements: [res.locals.userId],
+            type: db.sequelize.QueryTypes.SELECT
+        });
+
         //update order products to fullfilling status now that payment was successful
         await OrderProduct.update({
             orderStatus: 'Fulfilling'
