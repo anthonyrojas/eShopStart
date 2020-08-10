@@ -3,6 +3,7 @@
 const db = require('../models');
 const Product = db.Product;
 const ProductImage = db.ProductImage;
+const Inventory = db.Inventory;
 const validators = require('../helpers/validation');
 
 exports.addProduct = async (req, res, next)=>{
@@ -35,6 +36,10 @@ exports.addProduct = async (req, res, next)=>{
             upc: req.body.upc || null,
             isbn: req.body.isbn || null,
             isActive: req.body.isActive
+        });
+        await Inventory.create({
+            productId: product.id,
+            amount: 0
         });
         return res.status(200).json({
             statusMessage: 'Product created.',

@@ -7,6 +7,7 @@ const OrderProduct = db.OrderProduct;
 const Product = db.Product;
 const Cart = db.Cart;
 const CartItem = db.CartItem;
+const Inventory = db.Inventory;
 
 exports.addOrder = async(req, res, next) => {
     try{
@@ -136,6 +137,7 @@ exports.orderProcessed = async(req, res) => {
     if (event === 'payment_intent.succeeded'){
         //the payment was successful, update the order product statuses
         const order = await Order.findOne({
+            attirbutes: ['id', 'stripePaymentId'],
             where: {
                 stripePaymentId: paymentIntent.id
             }
@@ -144,7 +146,14 @@ exports.orderProcessed = async(req, res) => {
         //clear cart
         await db.sequelize.query('DELETE FROM CartItems WHERE cartId = (SELECT id FROM Carts WHERE userId = ?)', {
             replacements: [res.locals.userId],
-            type: db.sequelize.QueryTypes.SELECT
+            type: db.sequelize.QueryTypes.DELETE
+        });
+
+        // TODO: input decrease inventory
+        //decrease inventory
+        await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.stripePaymentId = ?`, {
+            replacements: [order.stripePaymentId],
+            type: db.sequelize.QueryTypes.UPDATE
         });
 
         //update order products to fullfilling status now that payment was successful
