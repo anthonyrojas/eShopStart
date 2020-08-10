@@ -88,7 +88,7 @@ exports.getOrder = async(req, res, next) => {
                     id: req.params.id,
                     userId: res.locals.userId
                 },
-                include: [Product]
+                include: OrderProduct
             });
         }
         return res.status(200).json({
@@ -137,7 +137,7 @@ exports.orderProcessed = async(req, res) => {
     if (event === 'payment_intent.succeeded'){
         //the payment was successful, update the order product statuses
         const order = await Order.findOne({
-            attirbutes: ['id', 'stripePaymentId'],
+            attributes: ['id', 'stripePaymentId'],
             where: {
                 stripePaymentId: paymentIntent.id
             }
@@ -149,7 +149,6 @@ exports.orderProcessed = async(req, res) => {
             type: db.sequelize.QueryTypes.DELETE
         });
 
-        // TODO: input decrease inventory
         //decrease inventory
         await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.stripePaymentId = ?`, {
             replacements: [order.stripePaymentId],
