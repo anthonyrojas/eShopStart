@@ -42,8 +42,7 @@ exports.addOrder = async(req, res, next) => {
         const cartItems = await Cart.findAll({
             attributes: [
                 [db.Sequelize.col('CartItems.amount'), 'amount'],
-                [db.Sequelize.col('CartItems.productId'), 'productId'],
-
+                [db.Sequelize.col('CartItems.productId'), 'productId']
             ],
             include: [{
                 model: CartItem,
