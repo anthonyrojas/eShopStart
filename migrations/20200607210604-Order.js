@@ -17,6 +17,11 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      paymentStatus: {
+        type: Sequelize.ENUM('Initiated', 'Completed'),
+        allowNull: false,
+        default: 'Initiated'
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,

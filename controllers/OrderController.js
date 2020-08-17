@@ -11,17 +11,15 @@ const Inventory = db.Inventory;
 
 exports.addOrder = async(req, res, next) => {
     try{
+        //calculate the sum total of the cart
         const sumQuery = await Cart.findAll({
             attributes: [[db.sequelize.literal('SUM(price * amount)'), 'total']],
-            // attributes: ['id', 'userId'],
             include: [{
                 model: CartItem,
                 attributes: [],
-                // attributes: ['amount'],
                 include: [{
                     model: Product,
                     attributes: []
-                    // attributes: ['price']
                 }]
             }],
             where: {
@@ -30,15 +28,42 @@ exports.addOrder = async(req, res, next) => {
             raw: true
         });
         const sumAmount = sumQuery[0];
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: sumAmount.total * 100,
-            currency: 'usd'
+
+        let paymentIntent = null;
+
+        //check if there is already an order with a payment intent initatied but not complete for this user
+        let order = await Order.findOne({
+            where: {
+                userId: res.locals.userId,
+                paymentStatus: 'initiated'
+            },
+            raw: true
         });
-        const order = await Order.create({
-            userId: res.locals.userId,
-            total: sumAmount.total,
-            stripePaymentId: paymentIntent.id
-        });
+        //there is an existing order initiated and not completed
+        if(order){
+            paymentIntent = await stripe.paymentIntent.confirm(currentOrder.stripePaymentId, {
+                amount: sumAmount.total * 100,
+                currency: 'usd'
+            });
+            currentOrder.total = sumAmount.total;
+            await currentOrder.save();
+            await OrderProduct.destroy({
+                where: {
+                    orderId: currentOrder.id
+                }
+            });
+        }else{
+            //create a new payment intent
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: sumAmount.total * 100,
+                currency: 'usd'
+            });
+            order = await Order.create({
+                userId: res.locals.userId,
+                total: sumAmount.total,
+                stripePaymentId: paymentIntent.id
+            });
+        }
         const cartItems = await Cart.findAll({
             attributes: [
                 [db.Sequelize.col('CartItems.amount'), 'amount'],

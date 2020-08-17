@@ -27,6 +27,19 @@ module.exports = (sequelize, DataTypes) => {
                     msg: 'Order must be associated with a stripe payment intent.'
                 }
             }
+        },
+        paymentStatus: {
+            type: DataTypes.ENUM('Initiated', 'Completed'),
+            allowNull: false,
+            default: 'Initiated',
+            validate: {
+                notNull: {
+                    msg: 'Order payment status cannot be empty.'
+                },
+                notEmpty: {
+                    msg: 'Order payment status cannot be empty.'
+                }
+            }
         }
     }, {});
     Order.associate = function(models) {
