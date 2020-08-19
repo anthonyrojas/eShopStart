@@ -41,7 +41,7 @@ exports.addOrder = async(req, res, next) => {
         });
         //there is an existing order initiated and not completed
         if(order){
-            paymentIntent = await stripe.paymentIntent.confirm(currentOrder.stripePaymentId, {
+            paymentIntent = await stripe.paymentIntents.confirm(currentOrder.stripePaymentId, {
                 amount: sumAmount.total * 100,
                 currency: 'usd'
             });
