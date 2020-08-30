@@ -2,12 +2,14 @@
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 const db = require('../models');
 const { isUndefinedOrNullOrEmpty } = require('../helpers');
+const User = require('../routes/User');
 const Order = db.Order;
 const OrderProduct = db.OrderProduct;
 const Product = db.Product;
 const Cart = db.Cart;
 const CartItem = db.CartItem;
 const Inventory = db.Inventory;
+const MailUtils = require('../utils/Mail');
 
 exports.addOrder = async(req, res, next) => {
     try{
@@ -104,7 +106,7 @@ exports.getOrder = async(req, res, next) => {
                 where: {
                     id: req.params.id
                 },
-                include: OrderProduct
+                include: Product
             });
         }else{
             order = await Order.findOne({
@@ -112,7 +114,7 @@ exports.getOrder = async(req, res, next) => {
                     id: req.params.id,
                     userId: res.locals.userId
                 },
-                include: OrderProduct
+                include: Product
             });
         }
         return res.status(200).json({
@@ -120,6 +122,7 @@ exports.getOrder = async(req, res, next) => {
             order
         })
     }catch(e){
+        console.log(e);
         return res.status(404).json({
             type: 'NotFoundError', 
             statusMessage: 'Unable to find order.'
@@ -156,40 +159,80 @@ exports.getOrders = async(req, res, next) => {
 }
 
 exports.orderProcessed = async(req, res) => {
-    const event = req.body.type;
-    const paymentIntent = req.body.data.object;
-    if (event === 'payment_intent.succeeded'){
-        //the payment was successful, update the order product statuses
-        const order = await Order.findOne({
-            attributes: ['id', 'stripePaymentId'],
-            where: {
-                stripePaymentId: paymentIntent.id
-            }
-        });
+    const sig = request.headers['stripe-signature'];
+    //check stripe signature
+    if(!sig){
+        return res.status(400).json({
+            statusMessage: 'Invalid request.'
+        })
+    }
+    let event;
+    try{
+        event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        const paymentIntent = req.body.data.object;
+        if (event.type === 'payment_intent.succeeded'){
+            //the payment was successful, update the order product statuses
+            const order = await Order.findOne({
+                attributes: ['id', 'stripePaymentId', 'paymentStatus'],
+                where: {
+                    stripePaymentId: paymentIntent.id
+                }
+            });
+            order.paymentStatus = 'Completed';
+            await order.save();
+    
+            //clear cart
+            await db.sequelize.query('DELETE FROM CartItems WHERE cartId = (SELECT id FROM Carts WHERE userId = ?)', {
+                replacements: [res.locals.userId],
+                type: db.sequelize.QueryTypes.DELETE
+            });
+    
+            //decrease inventory
+            await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.stripePaymentId = ?`, {
+                replacements: [order.stripePaymentId],
+                type: db.sequelize.QueryTypes.UPDATE
+            });
+    
+            //update order products to fullfilling status now that payment was successful
+            await OrderProduct.update({
+                orderStatus: 'Fulfilling'
+            },
+            {
+                where: {
+                    orderId: order.id
+                }
+            });
 
-        //clear cart
-        await db.sequelize.query('DELETE FROM CartItems WHERE cartId = (SELECT id FROM Carts WHERE userId = ?)', {
-            replacements: [res.locals.userId],
-            type: db.sequelize.QueryTypes.DELETE
-        });
+            const dataQuery = await Order.findOne({
+                where: {
+                    id: req.params.id
+                },
+                include: Product
+            });
 
-        //decrease inventory
-        await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.stripePaymentId = ?`, {
-            replacements: [order.stripePaymentId],
-            type: db.sequelize.QueryTypes.UPDATE
-        });
+            const mailData = dataQuery.toJSON();
 
-        //update order products to fullfilling status now that payment was successful
-        await OrderProduct.update({
-            orderStatus: 'Fulfilling'
-        },
-        {
-            where: {
-                orderId: order.id
-            }
-        });
-        return res.status(200).json({received: true});
-    }else{
-        return res.status(400).json({received: false});
+            //get the user for the order
+            const user = await User.findOne(order.userId, {
+                attributes: ['id', 'email', 'firstName', 'lastName', 'phone'],
+                where: {
+                    id: order.userId
+                },
+                raw: true
+            });
+            mailData.user = user;
+
+            //send an email to the customer using the default template
+            await MailUtils.sendOrderEmail(mailData);
+            
+            return res.status(200).json({received: true});
+        }else{
+            return res.status(400).json({received: false});
+        }
+    }catch(e){
+        return res.status(500).json({
+            type: e.name,
+            statusMessage: e.message
+        })
     }
 }
