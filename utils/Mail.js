@@ -1,5 +1,7 @@
 'use strict';
 const AWS = require('aws-sdk');
+const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 const hbs = require('handlebars');
 const db = require('../models');
 const MailTemplate = db.MailTemplate;
@@ -43,11 +45,36 @@ exports.sendOrderEmail = async(data) => {
             return true;
         }else if(process.env.USE_SENDGRID === 'true'){
             //send email via sendgrid
+            sgMail.setApiKey(process.env.SENGRID_KEY);
+            const msg = {
+                to: data.user.email,
+                from: process.env.ORDERS_EMAIL,
+                subject: `Order Confirmation: ${data.id}`,
+                html: output
+            }
+            sgMail.send(output);
+            return true;
         }else if(process.env.USE_SMTP === 'true'){
             //send email via smtp
+            let transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST,
+                port: process.env.SMTP_PORT,
+                secure: process.env.SMTP_USE_TLS === 'true',
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASSWORD
+                }
+            });
+            await transporter.sendMail({
+                from: process.env.ORDERS_EMAIL,
+                to: data.user.email,
+                subject: `Order Confirmation: ${data.id}`,
+                html: output
+            });
+            return true;
         }
         //there is no mail delivery configured
-        return false
+        return false;
     }catch(e){
         console.error(e.message);
         return false;
