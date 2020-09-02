@@ -61,7 +61,8 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     }
-  });
+  }, {});
   MailTemplate.associate = function(model){
   }
+  return MailTemplate;
 }

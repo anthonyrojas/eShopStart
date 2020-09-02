@@ -5,6 +5,7 @@ const Product = db.Product;
 const ProductImage = db.ProductImage;
 const Inventory = db.Inventory;
 const validators = require('../helpers/validation');
+const { isUndefinedOrNullOrEmpty } = require('../helpers');
 
 exports.addProduct = async (req, res, next)=>{
     const userRole = res.locals.role;
@@ -120,6 +121,8 @@ exports.getProduct = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try{
+        let limit = isUndefinedOrNullOrEmpty(req.query.limit) ? 20 : Number(req.query.limit);
+        let skip = isUndefinedOrNullOrEmpty(req.query.limit) ? 0 : Number(req.query.skip);
         const products = await Product.findAll({
             attributes: ['id', 'name', 'slug', 'price', 'isActive'],
             include:{
@@ -128,13 +131,21 @@ exports.getProducts = async (req, res) => {
                 where: {
                     order: 1
                 }
-            }
+            },
+            limit: limit,
+            offset: skip
         });
         return res.status(200).json({
             statusMessage: 'Products returned.',
-            products
+            products,
+            limit,
+            skip,
+            total: await Product.count({
+                col: 'id'
+            })
         });
     }catch(e){
+        console.error(e);
         return res.status(400).json({
             type: e.name,
             statusMessage: 'Unable to retrieve products'
