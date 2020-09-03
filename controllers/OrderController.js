@@ -141,15 +141,19 @@ exports.getOrders = async(req, res, next) => {
         userId = req.params.id
     }
     try{
+        let limit = isUndefinedOrNullOrEmpty(req.query.limit) ? 10 : Number(req.query.limit);
+        let skip = isUndefinedOrNullOrEmpty(req.query.skip) ? 0 : Number(req.query.skip);
         const orders = await Order.findAll({
             where: {
                 userId: userId
-            }
+            },
+            limit: limit,
+            offset: skip
         });
         return res.status(200).json({
             statusMessage: 'Orders retrieved.',
             orders
-        })
+        });
     }catch(e){
         return res.status(500).json({
             type: 'NotFoundError',

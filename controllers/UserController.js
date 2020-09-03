@@ -228,3 +228,34 @@ exports.getUser = async (req, res) => {
         });
     }
 }
+
+exports.getUsers = async(req, res) => {
+    let userId = res.locals.userId;
+    try{
+        if(res.locals.role !== 'SuperAdmin'){
+            let limit = helpers.isUndefinedOrNullOrEmpty(req.query.limit) ? 20 : Number(req.query.limit);
+            let skip = helpers.isUndefinedOrNullOrEmpty(req.query.skip) ? 0 : Number(req.query.skip);
+            const users = await User.findAll({
+                attributes: ['id', 'phone', 'email', 'firstName', 'lastName', 'createdAt', 'updatedAt'],
+                limit: limit,
+                offset: skip
+            });
+            return res.status(200).json({
+                statusMessage: 'Users returned.',
+                users,
+                limit,
+                skip
+            });
+        }else{
+            return res.status(403).json({
+                type: 'AuthorizationError',
+                statusMessage: 'You are not authorized to view users accounts.'
+            });
+        }
+    }catch(e){
+        return res.status(500).json({
+            type: e.name,
+            statusMessage: e.message
+        });
+    }
+}
