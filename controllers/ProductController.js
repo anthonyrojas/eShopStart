@@ -122,7 +122,7 @@ exports.getProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
     try{
         let limit = isUndefinedOrNull(req.query.limit) ? 20 : Number(req.query.limit);
-        let skip = isUndefinedOrNull(req.query.limit) ? 0 : Number(req.query.skip);
+        let skip = isUndefinedOrNull(req.query.skip) ? 0 : Number(req.query.skip);
         const products = await Product.findAll({
             attributes: ['id', 'name', 'slug', 'price', 'isActive'],
             include:{
