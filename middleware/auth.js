@@ -10,6 +10,7 @@ function createToken(id, email, role, secret, isRefresh, expiresAt) {
                 userId: id,
                 email: email,
                 role: role,
+                isRefresh: true,
                 iat: Math.floor(Date.now()/1000),
                 exp: expiresAt
             }, secret, {
@@ -28,6 +29,7 @@ function createToken(id, email, role, secret, isRefresh, expiresAt) {
                 userId: id,
                 email: email,
                 role: role,
+                isRefresh: true,
                 iat: Math.floor(Date.now()/1000),
                 exp: expiresAt
             }, secret, {
@@ -79,10 +81,17 @@ exports.validateToken = async (req, res, next) => {
     const accessToken = req.headers.authorization;
     try{
         const decoded = await verifyToken(accessToken, process.env.TOKEN_SECRET);
-        res.locals.userId = decoded.userId;
-        res.locals.email = decoded.email;
-        res.locals.role = decoded.role;
-        next();
+        if(!decoded.isRefresh){
+            res.locals.userId = decoded.userId;
+            res.locals.email = decoded.email;
+            res.locals.role = decoded.role;
+            next();
+        }else{
+            return res.status(401).json({
+                type: 'AuthenticationError',
+                statusMessage: 'Invalid token. Refresh token provided.'
+            });
+        }
     }catch(e){
         if(e.name === 'TokenExpiredError'){
             return res.status(400).json({
