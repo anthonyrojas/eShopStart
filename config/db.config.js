@@ -11,7 +11,7 @@ module.exports = {
             "max": 10,
             "idle": 10000,
             "acquire": 30000
-        }
+        },
     },
     "test": {
         "username": process.env.DB_USER,
@@ -37,6 +37,7 @@ module.exports = {
             "max": 10,
             "idle": 10000,
             "acquire": 30000
-        }
+        },
+        "logging": false
     }
 }
