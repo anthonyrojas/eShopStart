@@ -147,7 +147,7 @@ exports.getProducts = async (req, res) => {
     }catch(e){
         return res.status(400).json({
             type: e.name,
-            statusMessage: 'Unable to retrieve products'
+            statusMessage: e.message
         });
     }
 }
