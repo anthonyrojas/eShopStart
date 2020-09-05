@@ -9,4 +9,5 @@ module.exports = (router) => {
     router.put('/', Auth.validateToken, UserController.updateUser);
     router.put('/password', Auth.validateToken, UserController.updateUser);
     router.post('/login', UserController.beginLogin, Auth.generateToken, UserController.completeLogin);
+    router.post('/refresh', Auth.refreshTokens, UserController.refreshTokens);
 }

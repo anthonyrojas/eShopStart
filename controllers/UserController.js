@@ -48,11 +48,18 @@ exports.beginLogin = async (req, res, next) => {
                 statusMessage: 'A user with that email does not exist.'
             });
         }
-        const authenticate = await compareHash(req.body.password, user.password);
-        res.locals.userId = user.id;
-        res.locals.email = user.email.toLowerCase();
-        res.locals.role = user.role;
-        next();
+        const validLogin = await compareHash(req.body.password, user.password);
+        if(validLogin){
+            res.locals.userId = user.id;
+            res.locals.email = user.email.toLowerCase();
+            res.locals.role = user.role;
+            next();
+        }else{
+            return res.status(400).json({
+                type: 'AuthenticationError',
+                statusMessage: 'Login failed.'
+            })
+        }
     }catch(e){
         return res.status(400).json({
             type: 'AuthenticationError',
@@ -64,8 +71,19 @@ exports.beginLogin = async (req, res, next) => {
 exports.completeLogin = async (req, res) => {
     return res.status(200).json({
         refreshToken: res.locals.refreshToken,
-        accessToken: res.locals.accessToken
+        accessToken: res.locals.accessToken,
+        expiresAt: res.locals.expiresAt,
+        refreshBy: res.locals.refreshBy
     });
+}
+
+exports.refreshTokens = async (req, res) => {
+    return res.status(200).json({
+        refreshToken: res.locals.refreshToken,
+        accessToken: res.locals.accessToken,
+        expiresAt: res.locals.expiresAt,
+        refreshBy: res.locals.refreshBy
+    })
 }
 
 //create a user account

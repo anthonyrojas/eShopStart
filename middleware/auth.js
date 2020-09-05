@@ -2,7 +2,7 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
-function createToken(id, email, role, secret, isRefresh) {
+function createToken(id, email, role, secret, isRefresh, expiresAt) {
     return new Promise((resolve, reject)=>{
         //check if we are generating a refresh token or access token
         if(isRefresh){
@@ -10,10 +10,11 @@ function createToken(id, email, role, secret, isRefresh) {
                 userId: id,
                 email: email,
                 role: role,
-                iat: Math.floor(Date.now()/1000)
+                iat: Math.floor(Date.now()/1000),
+                exp: expiresAt
             }, secret, {
                 algorithm: 'HS256',
-                expiresIn: '12h'
+                // expiresIn: '12h',
             }, (err, token)=>{
                 if(err){
                     reject(err);
@@ -27,10 +28,11 @@ function createToken(id, email, role, secret, isRefresh) {
                 userId: id,
                 email: email,
                 role: role,
-                iat: Math.floor(Date.now()/1000)
+                iat: Math.floor(Date.now()/1000),
+                exp: expiresAt
             }, secret, {
                 algorithm: 'HS256',
-                expiresIn: '1h'
+                // expiresIn: '1h'
             }, (err, token)=>{
                 if(err){
                     reject(err);
@@ -56,10 +58,15 @@ function verifyToken(token, secret){
 
 exports.generateToken =  async (req, res, next) => {
     try{
-        const refreshToken = await createToken(res.locals.userId, res.locals.email, res.locals.role, process.env.TOKEN_SECRET, true);
-        const accessToken = await createToken(res.locals.userId, res.locals.email, res.locals.role, process.env.TOKEN_SECRET, false);
+        const currentDate = Date.now();
+        const accessTokenExpiration = Math.floor(currentDate / 1000) + (60 * 60);
+        const refreshTokenExpiration = Math.floor(currentDate / 1000) + (60 * 60 * 12);
+        const refreshToken = await createToken(res.locals.userId, res.locals.email, res.locals.role, process.env.TOKEN_SECRET, true, refreshTokenExpiration);
+        const accessToken = await createToken(res.locals.userId, res.locals.email, res.locals.role, process.env.TOKEN_SECRET, false, accessTokenExpiration);
         res.locals.accessToken = accessToken;
         res.locals.refreshToken = refreshToken;
+        res.locals.expiresAt = accessTokenExpiration * 1000;
+        res.locals.refreshBy = refreshTokenExpiration * 1000;
         next();
     }catch(err){
         return res.status(500).json({
@@ -95,10 +102,15 @@ exports.refreshTokens = async(req, res, next)=>{
     const token = req.headers.authorization;
     try{
         const decoded = await verifyToken(token, process.env.TOKEN_SECRET);
-        const refreshToken = await createToken(decoded.userId, decoded.email, decoded.role, process.env.TOKEN_SECRET, true);
-        const accessToken = await createToken(decoded.userId, decoded.email, decoded.role, process.env.TOKEN_SECRET, false);
+        const currentDate = Date.now();
+        const accessTokenExpiration = Math.floor(currentDate / 1000) + (60 * 60);
+        const refreshTokenExpiration = Math.floor(currentDate / 1000) + (60 * 60 * 12);
+        const refreshToken = await createToken(decoded.userId, decoded.email, decoded.role, process.env.TOKEN_SECRET, true, refreshTokenExpiration);
+        const accessToken = await createToken(decoded.userId, decoded.email, decoded.role, process.env.TOKEN_SECRET, false, accessTokenExpiration);
         res.locals.refreshToken = refreshToken;
         res.locals.accessToken = accessToken;
+        res.locals.expiresAt = accessTokenExpiration * 1000;
+        res.locals.refreshBy = refreshTokenExpiration * 1000;
         next();
     }catch(e){
         if(e.name === 'TokenExpiredError'){
