@@ -5,7 +5,7 @@ const Product = db.Product;
 const ProductImage = db.ProductImage;
 const Inventory = db.Inventory;
 const validators = require('../helpers/validation');
-const { isUndefinedOrNullOrEmpty } = require('../helpers');
+const { isUndefinedOrNull } = require('../helpers');
 
 exports.addProduct = async (req, res, next)=>{
     const userRole = res.locals.role;
