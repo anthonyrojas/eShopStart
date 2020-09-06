@@ -96,7 +96,7 @@ exports.validateToken = async (req, res, next) => {
         if(e.name === 'TokenExpiredError'){
             return res.status(400).json({
                 type: e.name,
-                statusMessage: 'Access token is expired. Please send the refresh token.'
+                statusMessage: 'Access token is expired. Refresh your tokens.'
             })
         }else{
             return res.status(400).json({
