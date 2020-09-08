@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/anthonyrojas/eShopStart#readme",
   "dependencies": {
+    "@easypost/api": "^3.9.1",
     "@sendgrid/mail": "^7.2.4",
     "aws-sdk": "^2.691.0",
     "bcrypt": "^4.0.1",
