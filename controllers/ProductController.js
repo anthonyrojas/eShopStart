@@ -34,6 +34,9 @@ exports.addProduct = async (req, res, next)=>{
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
             weight: req.body.weight || null,
+            length: req.body.length || null,
+            width: req.body.width || null,
+            height: req.body.height || null,
             upc: req.body.upc || null,
             isbn: req.body.isbn || null,
             isActive: req.body.isActive
@@ -79,6 +82,9 @@ exports.updateProduct = async (req, res, next) => {
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
             weight: req.body.weight,
+            length: req.body.length,
+            width: req.body.width,
+            height: req.body.height,
             upc: req.body.upc,
             isbn: req.body.isbn,
             isActive: req.body.isActive

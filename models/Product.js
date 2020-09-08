@@ -78,6 +78,18 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        length: {
+            type: DataTypes.DECIMAL,
+            allowNull: true
+        },
+        width: {
+            type: DataTypes.DECMIMAL,
+            allowNull: false
+        },
+        height: {
+            type: DataTypes.DECIMAL,
+            allowNull: false
+        },
         weight: {
             type: DataTypes.DECIMAL(10,2),//weight in ounces
             allowNull: true

@@ -38,6 +38,18 @@ module.exports = {
         type: Sequelize.DECIMAL(10,2),
         allowNull: true
       },
+      height: {
+        type: Sequelize.DECIMAL(10,1),
+        allowNull: true
+      },
+      width: {
+        type: Sequelize.DECIMAL(10,1),
+        allowNull: true
+      },
+      length: {
+        type: Sequelize.DECIMAL(10,1),
+        allowNull: true
+      },
       upc: {
         type: Sequelize.BIGINT(12),
         allowNull: true
