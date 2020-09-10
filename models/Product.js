@@ -79,15 +79,15 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         length: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(10,1),
             allowNull: true
         },
         width: {
-            type: DataTypes.DECMIMAL,
+            type: DataTypes.DECIMAL(10,1),
             allowNull: false
         },
         height: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(10,1),
             allowNull: false
         },
         weight: {

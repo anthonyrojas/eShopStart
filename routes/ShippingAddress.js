@@ -1,4 +1,4 @@
-const Auth = require('../middleware');
+const Auth = require('../middleware/auth');
 const ShippingAddressController = require('../controllers/ShippingAddressController');
 
 module.exports = (router) => {
