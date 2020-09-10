@@ -54,7 +54,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         notEmpty: {
           msg: 'Address zipcode must be provided.'
-        }
+        },
+        is: /^[0-9]+$/i
       }
     }
   }, {});
