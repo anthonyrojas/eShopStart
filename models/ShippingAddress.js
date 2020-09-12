@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    business: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     apt: {
       type: DataTypes.STRING,
       allowNull: true

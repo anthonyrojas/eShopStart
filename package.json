@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/anthonyrojas/eShopStart#readme",
   "dependencies": {
-    "@easypost/api": "^3.9.1",
     "@sendgrid/mail": "^7.2.4",
     "aws-sdk": "^2.691.0",
     "bcrypt": "^5.0.0",
@@ -38,6 +37,7 @@
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.21.12",
+    "shippo": "^1.5.0",
     "stripe": "^8.60.0",
     "uuid": "^8.1.0"
   },

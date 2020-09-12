@@ -1,43 +1,23 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('ShippingAddresses', {
+    await queryInterface.createTable('Shipments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      business: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      street: {
+      shipmentId: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      apt: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      zip: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      userId: {
+      orderId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id' 
+          model: 'Orders',
+          key: 'id'
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
@@ -53,6 +33,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('ShippingAddresses');
+    await queryInterface.dropTable('Shipments');
   }
 };

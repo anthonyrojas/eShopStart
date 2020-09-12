@@ -29,6 +29,9 @@ const MailTemplateRoutes = require('./MailTemplate');
 const ShippingAddressRouter = express.Router();
 const ShippingAddressRoutes = require('./ShippingAddress');
 
+const AppSettingsRouter = express.Router();
+const AppSettingsRoutes = require('./AppSetting')
+
 module.exports = (app) => {
     app.get('/', (req, res)=>{
         return res.status(200).send('EShopStart is alive.');
@@ -62,4 +65,7 @@ module.exports = (app) => {
 
     app.use('/api/shipping-address', ShippingAddressRouter);
     ShippingAddressRoutes(ShippingAddressRouter);
+
+    app.use('/api/app-settings', AppSettingsRouter);
+    AppSettingsRoutes(AppSettingsRouter);
 }
