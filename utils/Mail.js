@@ -37,7 +37,7 @@ exports.sendOrderEmail = async(data) => {
                         Data: `Order Confirmation: ${data.id}`
                     }
                 },
-                Source: process.env.ORDERS_EMAIL
+                Source: `Orders <${process.env.ORDERS_EMAIL}>`
             }
             AWS.config.update({region: process.env.AWS_REGION});
             const ses = new AWS.SES({apiVersion: '2010-12-01'});

@@ -10,7 +10,7 @@ const Product = db.Product;
 const Cart = db.Cart;
 const CartItem = db.CartItem;
 const Shipment = db.Shipment;
-const Inventory = db.Inventory;
+const AppSetting = db.AppSetting;
 const MailUtils = require('../utils/Mail');
 
 exports.beginCheckout = async(req, res, next) => {
@@ -313,25 +313,6 @@ exports.processOrder = async(req, res) => {
                     orderId: order.id
                 }
             });
-
-            // const dataQuery = await Order.findOne({
-            //     where: {
-            //         id: req.params.id
-            //     },
-            //     include: Product
-            // });
-
-            // const mailData = order.toJSON();
-
-            // //get the user for the order
-            // const user = await User.findOne(order.userId, {
-            //     attributes: ['id', 'email', 'firstName', 'lastName', 'phone'],
-            //     where: {
-            //         id: order.userId
-            //     },
-            //     raw: true
-            // });
-            // mailData.user = user;
 
             //send an email to the customer using the default template
             await MailUtils.sendOrderEmail(data);
