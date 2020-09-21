@@ -15,7 +15,7 @@ module.exports = {
       },
       stripePaymentId: {
         type: Sequelize.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       paymentStatus: {
         type: Sequelize.ENUM('Initiated', 'Completed'),

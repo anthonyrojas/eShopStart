@@ -18,15 +18,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         stripePaymentId: {
             type: DataTypes.STRING(255),
-            allowNull: false,
-            validate: {
-                notNull: {
-                    msg: 'Order must be associated with a stripe payment intent.'
-                },
-                notEmpty: {
-                    msg: 'Order must be associated with a stripe payment intent.'
-                }
-            }
+            allowNull: true,
+            // validate: {
+            //     notNull: {
+            //         msg: 'Order must be associated with a stripe payment intent.'
+            //     },
+            //     notEmpty: {
+            //         msg: 'Order must be associated with a stripe payment intent.'
+            //     }
+            // }
         },
         paymentStatus: {
             type: DataTypes.ENUM('Initiated', 'Completed'),

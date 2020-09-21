@@ -12,6 +12,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      rateId: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      transactionId: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       orderId: {
         type: Sequelize.INTEGER,
         allowNull: false,

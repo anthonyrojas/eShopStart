@@ -29,7 +29,7 @@ function createToken(id, email, role, secret, isRefresh, expiresAt) {
                 userId: id,
                 email: email,
                 role: role,
-                isRefresh: true,
+                isRefresh: false,
                 iat: Math.floor(Date.now()/1000),
                 exp: expiresAt
             }, secret, {

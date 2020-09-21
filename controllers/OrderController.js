@@ -1,15 +1,103 @@
 'use strict';
 const stripe = require('stripe')(process.env.STRIPE_KEY);
+const shippo = require('shippo')(process.env.SHIPPO_KEY);
 const db = require('../models');
 const { isUndefinedOrNullOrEmpty } = require('../helpers');
-const User = require('../routes/User');
+const User = db.User;
 const Order = db.Order;
 const OrderProduct = db.OrderProduct;
 const Product = db.Product;
 const Cart = db.Cart;
 const CartItem = db.CartItem;
+const Shipment = db.Shipment;
 const Inventory = db.Inventory;
 const MailUtils = require('../utils/Mail');
+
+exports.beginCheckout = async(req, res, next) => {
+    try{
+        //subtotal of the cart
+        const sumAmount = res.locals.subTotal;
+        //check if an order object already exists
+        let order = await Order.findOne({
+            where: {
+                userId: res.locals.userId,
+                paymentStatus: 'initiated'
+            },
+            raw: true
+        });
+        if(order){
+            //update the total with the new subtotal
+            order.total = sumAmount;
+            await order.save();
+            //delete current order products
+            await OrderProduct.destroy({
+                where: {
+                    orderId: currentOrder.id
+                }
+            });
+        }else{
+            //create a new order
+            order = await Order.create({
+                total: sumAmount,
+                paymentStatus: 'initiated',
+                userId: res.locals.userId
+            });
+            //create associated order products
+            const cartItems = await Cart.findAll({
+                attributes: [
+                    [db.Sequelize.col('CartItems.amount'), 'amount'],
+                    [db.Sequelize.col('CartItems.productId'), 'productId']
+                ],
+                include: [{
+                    model: CartItem,
+                    attributes: []
+                }],
+                where: {
+                    userId: res.locals.userId
+                },
+                raw: true
+            });
+            const orderProducts = cartItems.map(c => ({
+                ...c,
+                orderId: order.id
+            }));
+            OrderProduct.bulkCreate(orderProducts);
+        }
+        res.locals.order = order;
+        next();
+    }catch(e){
+        next(e);
+    }
+}
+
+exports.completeCheckout = async(req, res, next) => {
+    try{
+        //check if the order is an existing order with a stripe payment id
+        const order = res.locals.order;
+        let paymentIntent = null;
+        if(order.stripePaymentId){
+            paymentIntent = await stripe.paymentIntents.confirm(order.stripePaymentId, {
+                amount: order.total * 100,
+                currency: 'usd'
+            });
+        }else{
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: order.total * 100,
+                currency: 'usd'
+            });
+            order.stripePaymentId = paymentIntent.id;
+        }
+        //update the order with final total and stripe id
+        await order.save();
+        return res.status(200).json({
+            statusMessage: 'Checkout successful.',
+            clientSecret: paymentIntent.client_secret,
+            order
+        });
+    }catch(e){
+        next(e);
+    }
+}
 
 exports.addOrder = async(req, res, next) => {
     try{
@@ -162,7 +250,7 @@ exports.getOrders = async(req, res, next) => {
     }
 }
 
-exports.orderProcessed = async(req, res) => {
+exports.processOrder = async(req, res) => {
     const sig = request.headers['stripe-signature'];
     //check stripe signature
     if(!sig){
@@ -177,13 +265,16 @@ exports.orderProcessed = async(req, res) => {
         if (event.type === 'payment_intent.succeeded'){
             //the payment was successful, update the order product statuses
             const order = await Order.findOne({
-                attributes: ['id', 'stripePaymentId', 'paymentStatus'],
+                // attributes: ['id', 'stripePaymentId', 'paymentStatus'],
                 where: {
                     stripePaymentId: paymentIntent.id
-                }
+                },
+                include: [Shipment, Product, User]
             });
             order.paymentStatus = 'Completed';
             await order.save();
+
+            const data = order.toJSON();
     
             //clear cart
             await db.sequelize.query('DELETE FROM CartItems WHERE cartId = (SELECT id FROM Carts WHERE userId = ?)', {
@@ -192,10 +283,26 @@ exports.orderProcessed = async(req, res) => {
             });
     
             //decrease inventory
-            await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.stripePaymentId = ?`, {
-                replacements: [order.stripePaymentId],
+            await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.id = ?`, {
+                replacements: [data.id],
                 type: db.sequelize.QueryTypes.UPDATE
             });
+
+            //purchase shipping if there exists one
+            if(order.Shipment){
+                const transaction = await shippo.transaction.create({
+                    rate: data.Shipment.rateId,
+                    label_file_type: "png",
+                    async: true
+                });
+                await Shipment.update({
+                    transactionId: transaction.object_id
+                }, {
+                    where: {
+                        id: order.Shipment.id
+                    }
+                });
+            }
     
             //update order products to fullfilling status now that payment was successful
             await OrderProduct.update({
@@ -207,27 +314,27 @@ exports.orderProcessed = async(req, res) => {
                 }
             });
 
-            const dataQuery = await Order.findOne({
-                where: {
-                    id: req.params.id
-                },
-                include: Product
-            });
+            // const dataQuery = await Order.findOne({
+            //     where: {
+            //         id: req.params.id
+            //     },
+            //     include: Product
+            // });
 
-            const mailData = dataQuery.toJSON();
+            // const mailData = order.toJSON();
 
-            //get the user for the order
-            const user = await User.findOne(order.userId, {
-                attributes: ['id', 'email', 'firstName', 'lastName', 'phone'],
-                where: {
-                    id: order.userId
-                },
-                raw: true
-            });
-            mailData.user = user;
+            // //get the user for the order
+            // const user = await User.findOne(order.userId, {
+            //     attributes: ['id', 'email', 'firstName', 'lastName', 'phone'],
+            //     where: {
+            //         id: order.userId
+            //     },
+            //     raw: true
+            // });
+            // mailData.user = user;
 
             //send an email to the customer using the default template
-            await MailUtils.sendOrderEmail(mailData);
+            await MailUtils.sendOrderEmail(data);
             
             return res.status(200).json({received: true});
         }else{

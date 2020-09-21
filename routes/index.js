@@ -30,7 +30,10 @@ const ShippingAddressRouter = express.Router();
 const ShippingAddressRoutes = require('./ShippingAddress');
 
 const AppSettingsRouter = express.Router();
-const AppSettingsRoutes = require('./AppSetting')
+const AppSettingsRoutes = require('./AppSetting');
+
+const ShipmentRouter = express.Router();
+const ShipmentRoutes = require('./Shipment');
 
 module.exports = (app) => {
     app.get('/', (req, res)=>{
@@ -68,4 +71,7 @@ module.exports = (app) => {
 
     app.use('/api/app-settings', AppSettingsRouter);
     AppSettingsRoutes(AppSettingsRouter);
+
+    app.use('/api/shipment', ShipmentRouter);
+    ShipmentRoutes(ShipmentRouter);
 }

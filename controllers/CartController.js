@@ -118,10 +118,13 @@ exports.getCart = async(req, res, next) => {
                 userId: res.locals.userId
             }
         });
+        //there is no cart for this user, create one
         if(!cart){
+            //create a cart
             cart = await Cart.create({
                 userId: res.locals.userId
             });
+            //return an empty cart
             return res.status(200).json({
                 statusMessage: 'Cart returned.',
                 cart: []
@@ -130,10 +133,86 @@ exports.getCart = async(req, res, next) => {
         const cartItems = await Cart.getCartItems();
         return res.status(200).json({
             statusMessage: 'Cart returned.',
-            cart: cartItems
+            cart,
+            cartItems
         });
     }catch(e){
         res.locals.errOperation = 'db';
+        next(e);
+    }
+}
+
+exports.calculateSubTotal = async(req, res, next) => {
+    try{
+        //calculate the subtotal of the cart
+        const sumQuery = await Cart.findAll({
+            attributes: [[db.sequelize.literal('SUM(price * amount)'), 'total']],
+            include: [{
+                model: CartItem,
+                attributes: [],
+                include: [{
+                    model: Product,
+                    attributes: []
+                }]
+            }],
+            where: {
+                userId: res.locals.userId
+            },
+            raw: true
+        });
+        res.locals.subTotal = sumQuery[0];
+        next();
+    }catch(e){
+        next(e);
+    }
+}
+
+exports.getCartSubtotal = async(req, res, next) => {
+    try{
+        const cart = await Cart.findOne({
+            where: {
+                userId: res.locals.userId,
+            },
+            include: [{
+                model: CartItem,
+                include: Product
+            }]
+        });
+        return res.status(200).json({
+            statusMessage: 'Cart items and subtotal retrieved.',
+            cart,
+            subTotal: res.locals.subTotal
+        });
+    }catch(e){
+        next(e);
+    }
+}
+
+exports.calculatePackageDimensions = async(req, res, next) => {
+    try{
+        const sumQuery = await Cart.findAll({
+            attributes: [
+                [db.sequelize.literal('SUM(weight*amount)'), 'totalWeight'],
+                [db.sequelize.literal('SUM(height*amount)'), 'totalHeight'],
+                [db.sequelize.fn('max', db.sequelize.col('width')), 'maxWidth'],
+                [db.sequelize.fn('max', db.sequelize.col('length')), 'maxLength']
+            ],
+            include: [{
+                model: CartItem,
+                attributes: [],
+                include: [{
+                    model: Product,
+                    attributes: [],
+                    where: {
+                        isDeliverable: true
+                    }
+                }]
+            }],
+            raw: true
+        });
+        res.locals.packageDimensions = sumQuery[0];
+        next();
+    }catch(e){
         next(e);
     }
 }

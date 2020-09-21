@@ -1,5 +1,6 @@
 'use strict';
 const db = require('../models');
+const shippo = require('shippo')(process.env.SHIPPO_KEY);
 const AppSetting = db.AppSetting;
 
 exports.getAppSettingCategories = async(req, res) =>{
@@ -40,6 +41,29 @@ exports.addAppSetting = async(req, res, next) => {
                     statusMessage: 'An app setting for this category already exists. Edit the existing value rather than adding a new one.'
                 })
             }else{
+                //check if this is the from address
+                if(req.body.category === 'from_address'){
+                    //validate it with shippo and save the shippo address id
+                    const fromAddress = shippo.address.create({
+                        name: req.body.content.name,
+                        street1: req.body.content.street,
+                        city: req.body.content.city,
+                        state: req.body.content.state,
+                        zip: req.body.content.zip,
+                        country: req.body.content.country,
+                        validate: true
+                    });
+                    if(fromAddress.validation_results.is_valid){
+                        //save the object id
+                        req.body.content.shippoId = fromAddress.object_id;
+                    }else{
+                        //inform the client the address is invalid
+                        return res.status(400).json({
+                            type: 'ValidationError',
+                            statusMessage: 'The address is not valid.'
+                        })
+                    }
+                }
                 const appSetting = await AppSetting.create({
                     category: req.body.category,
                     content: req.body.content

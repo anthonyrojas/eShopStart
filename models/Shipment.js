@@ -15,6 +15,22 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Shipment ID cannot be empty.'
         }
       }
+    },
+    rateId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'Rate ID cannot be empty.'
+        },
+        notEmpty: {
+          msg: 'Rate ID cannot be empty.'
+        }
+      }
+    },
+    transactionId: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {});
   Shipment.associates = function(models){

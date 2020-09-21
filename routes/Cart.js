@@ -5,4 +5,5 @@ module.exports = (router) => {
     router.put('/', Auth.validateToken, CartController.updateCartItems);
     router.post('/cart-item', Auth.validateToken, CartController.addCartItem);
     router.delete('/', Auth.validateToken, CartController.clearCart);
+    router.get('/subtotal', CartController.calculateSubTotal, CartController.getCartSubtotal);
 }
