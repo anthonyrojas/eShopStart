@@ -94,6 +94,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(10,2),//weight in ounces
             allowNull: true
         },
+        sku: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         upc: {
             type: DataTypes.BIGINT(12),
             allowNull: true

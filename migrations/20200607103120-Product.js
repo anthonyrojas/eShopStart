@@ -50,6 +50,10 @@ module.exports = {
         type: Sequelize.DECIMAL(10,1),
         allowNull: true
       },
+      sku: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       upc: {
         type: Sequelize.BIGINT(12),
         allowNull: true

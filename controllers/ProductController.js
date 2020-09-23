@@ -4,8 +4,10 @@ const db = require('../models');
 const Product = db.Product;
 const ProductImage = db.ProductImage;
 const Inventory = db.Inventory;
+const ProductCategory = db.ProductCategory;
+const Category = db.Category;
 const validators = require('../helpers/validation');
-const { isUndefinedOrNull } = require('../helpers');
+const { isUndefinedOrNull, isUndefinedOrNullOrEmpty } = require('../helpers');
 
 exports.addProduct = async (req, res, next)=>{
     const userRole = res.locals.role;
@@ -37,6 +39,7 @@ exports.addProduct = async (req, res, next)=>{
             length: req.body.length || null,
             width: req.body.width || null,
             height: req.body.height || null,
+            sku: req.body.sku || null,
             upc: req.body.upc || null,
             isbn: req.body.isbn || null,
             isActive: req.body.isActive
@@ -85,6 +88,7 @@ exports.updateProduct = async (req, res, next) => {
             length: req.body.length,
             width: req.body.width,
             height: req.body.height,
+            sku: req.body.sku,
             upc: req.body.upc,
             isbn: req.body.isbn,
             isActive: req.body.isActive
@@ -112,7 +116,9 @@ exports.updateProduct = async (req, res, next) => {
 
 exports.getProduct = async (req, res) => {
     try{
-        const product = await Product.findByPk(req.params.id);
+        const product = await Product.findByPk(req.params.id, {
+            include: ProductImage
+        });
         return res.status(200).json({
             statusMessage: 'Product returned.',
             product: product
@@ -187,6 +193,7 @@ exports.deleteProduct = async (req, res) => {
 exports.getProductBySlug = async (req, res) => {
     try{
         const product = await Product.findOne({
+            include: ProductImage,
             where: {
                 slug: req.params.slug
             }
@@ -200,5 +207,50 @@ exports.getProductBySlug = async (req, res) => {
             type: 'NotFoundError',
             statusMessage: 'Unable to find or retrieve product.'
         })
+    }
+}
+
+exports.searchProducts = async(req, res, next) => {
+    try{
+        // look for query variables
+        const categories = isUndefinedOrNullOrEmpty(req.query.categories) ? await Category.findAll({attributes: ['id'], raw: true}) : req.query.categories.split(',');
+        const priceStart = isUndefinedOrNullOrEmpty(req.query.priceStart) ? Number.MIN_VALUE : Number(req.query.priceStart);
+        const priceEnd = isUndefinedOrNullOrEmpty(req.query.priceEnd) ? Number.MAX_VALUE : Number(req.query.priceEnd);
+        const productName = isUndefinedOrNullOrEmpty(req.query.productName) ? '' : req.query.productName;
+        const products = await Product.findAll({
+            attributes: ['id', 'name', 'slug', 'price', 'isActive'],
+            include: [
+                {
+                    attributes: [],
+                    model: ProductCategory,
+                    where: {
+                        categoryId:{
+                            [db.Sequelize.Op.in]: categories
+                        }
+                    },
+                },
+                {
+                    model: ProductImage,
+                    required: false,
+                    where: {
+                        order: 1
+                    }
+                }
+            ],
+            where:{
+                price: {
+                    [db.Sequelize.Op.between]: [priceStart-1, priceEnd+1]
+                },
+                name: {
+                    [db.Sequelize.Op.like]: `%${productName}%`
+                }
+            }
+        });
+        return res.status(200).json({
+            statusMessage: 'Product search returned.',
+            products: products.toJSON()
+        })
+    }catch(e){
+        next(e);
     }
 }
