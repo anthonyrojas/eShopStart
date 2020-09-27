@@ -1,5 +1,5 @@
 'use strict';
-
+const fs = require('fs');
 const db = require('../models');
 const Product = db.Product;
 const ProductImage = db.ProductImage;
@@ -8,6 +8,15 @@ const ProductCategory = db.ProductCategory;
 const Category = db.Category;
 const validators = require('../helpers/validation');
 const { isUndefinedOrNull, isUndefinedOrNullOrEmpty } = require('../helpers');
+
+function removeLocalFile(path){
+    return new Promise((resolve, reject) => {
+        fs.unlink(path, err => {
+            if(err) reject(err);
+            resolve({status: 'Success'});
+        }) 
+    })
+}
 
 exports.addProduct = async (req, res, next)=>{
     const userRole = res.locals.role;
@@ -28,6 +37,11 @@ exports.addProduct = async (req, res, next)=>{
     }
     try{
         const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
+        //check if it is a digital product
+        let digitalPath;
+        if(req.body.isDigital){
+            digitalPath = req.file.path;
+        }
         const product = await Product.create({
             name: req.body.name.trim(),
             description: req.body.description.trim(),
@@ -35,6 +49,7 @@ exports.addProduct = async (req, res, next)=>{
             slug: slug,
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
+            digitalPath: digitalPath,
             weight: req.body.weight || null,
             length: req.body.length || null,
             width: req.body.width || null,
@@ -76,37 +91,46 @@ exports.updateProduct = async (req, res, next) => {
         });
     }
     try{
-        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
-        const updatedRows = await Product.update({
-            name: req.body.name.trim(),
-            description: req.body.description.trim(),
-            price: req.body.price,
-            slug: slug,
-            isDeliverable: req.body.isDeliverable,
-            isDigital: req.body.isDigital,
-            weight: req.body.weight,
-            length: req.body.length,
-            width: req.body.width,
-            height: req.body.height,
-            sku: req.body.sku,
-            upc: req.body.upc,
-            isbn: req.body.isbn,
-            isActive: req.body.isActive
-        }, {
-            where: {
-                id: req.params.id
-            }
-        });
-        if(updatedRows[0] === 0){
+        const urlLength = req.baseUrl.split('/').length;
+        let digitalPath = null;
+        const product = await Product.findByPk(req.params.id);
+        if(!product){
             return res.status(404).json({
                 type: 'NotFoundError',
                 statusMessage: 'Unable to update product because it was not found.'
-            });
+            })
         }
-        const updatedProduct = await Product.findByPk(req.params.id);
+        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
+        if(req.body.isDigital && req.baseUrl.split('/')[urlLength-1] === 'digital'){
+            //check if a file is included with the update
+            if(req.file){
+                //delete the current file
+                removeLocalFile(product.digitalPath);
+                product.digitalPath = req.file.path;
+            }
+        }else if(!req.body.isDigital && product.isDigital){
+            //delete the product because it is no longer digital
+            removeLocalFile(product.digitalPath);
+            product.isDigital = false;
+            product.digitalPath = false
+        }
+        product.name = req.body.name.trim();
+        product.description = req.body.description;
+        product.price = req.body.price;
+        product.slug = slug;
+        product.isDeliverable = req.body.isDeliverable;
+        product.weight = req.body.weight;
+        product.length = req.body.length;
+        product.width = req.body.width;
+        product.height = req.body.height;
+        product.sku = req.body.sku;
+        product.upc = req.body.upc;
+        product.isbn = req.body.isbn;
+        product.isActive = req.body.isActive;
+        await product.save();
         return res.status(200).json({
             statusMessage: 'Product updated.',
-            product: updatedProduct.toJSON()
+            product: product.toJSON()
         });
     }catch(e){
         res.locals.errOperation = 'db';

@@ -78,6 +78,10 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        digitalPath: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         length: {
             type: DataTypes.DECIMAL(10,1),
             allowNull: true

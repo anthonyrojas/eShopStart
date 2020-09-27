@@ -34,6 +34,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false
       },
+      digitalPath: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       weight: {
         type: Sequelize.DECIMAL(10,2),
         allowNull: true
