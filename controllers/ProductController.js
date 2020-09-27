@@ -55,6 +55,7 @@ exports.addProduct = async (req, res, next)=>{
             isDeliverable: req.body.isDeliverable,
             isDigital: req.body.isDigital,
             digitalPath: digitalPath,
+            downloadsPermitted: req.body.downloadsPermitted,
             weight: req.body.weight || null,
             length: req.body.length || null,
             width: req.body.width || null,
@@ -107,6 +108,7 @@ exports.updateProduct = async (req, res, next) => {
         }
         const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
         if(req.body.isDigital && req.baseUrl.split('/')[urlLength-1] === 'digital'){
+            product.downloadsPermitted = req.body.downloadsPermitted;
             //check if a file is included with the update
             if(req.file){
                 //delete the current file
@@ -118,6 +120,7 @@ exports.updateProduct = async (req, res, next) => {
             removeLocalFile(product.digitalPath);
             product.isDigital = false;
             product.digitalPath = false
+            product.downloadsPermitted = null;
         }
         product.name = req.body.name.trim();
         product.description = req.body.description;
