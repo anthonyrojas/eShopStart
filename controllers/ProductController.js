@@ -39,8 +39,13 @@ exports.addProduct = async (req, res, next)=>{
         const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
         //check if it is a digital product
         let digitalPath;
-        if(req.body.isDigital){
+        if(req.body.isDigital && req.file){
             digitalPath = req.file.path;
+        }else if(req.body.isDigital && !req.file){
+            return res.status(400).json({
+                type: 'Error',
+                statusMessage: 'Product file required when it is a digital product.'
+            });
         }
         const product = await Product.create({
             name: req.body.name.trim(),

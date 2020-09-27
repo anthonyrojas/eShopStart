@@ -38,6 +38,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      downloadsPermitted: {
+        type:Sequelize.INTEGER,
+        allowNull: true
+      },
       weight: {
         type: Sequelize.DECIMAL(10,2),
         allowNull: true

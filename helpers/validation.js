@@ -98,6 +98,22 @@ exports.validateProductRequest = (req) => {
         errorCollection.weight = 'Product weight is required. It must be entered in ounces.';
         errorExists = true;
     }
+    else if(req.body.isDigital && helpers.isUndefinedOrNullOrEmpty(req.body.downloadsPermitted)){
+        errorCollection.downloadsPermitted = 'Product downloads permitted is required when the product is a digital product.';
+        errorExists = true;
+    }
+    if(!req.body.isDigital && helpers.isUndefinedOrNull(req.body.height)){
+        errorCollection.height = 'Product packaging height is required. It must be entered in inches.';
+        errorExists = true;
+    }
+    if(!req.body.isDigital && helpers.isUndefinedOrNull(req.body.length)){
+        errorCollection.length = 'Product packaging length is required. It must be entered in inches.';
+        errorExists = true;
+    }
+    if(!req.body.isDigital && helpers.isUndefinedOrNull(req.body.width)){
+        errorCollection.width = 'Product packaging width is required. It must be entered in inches.';
+        errorExists = true;
+    }
     if(helpers.isUndefinedOrNull(req.body.isActive)){
         errorCollection.isActive = 'Product must be marked active or non-active';
         errorExists = true;

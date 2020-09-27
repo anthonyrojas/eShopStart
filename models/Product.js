@@ -82,6 +82,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
+        downloadsPermitted: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         length: {
             type: DataTypes.DECIMAL(10,1),
             allowNull: true
