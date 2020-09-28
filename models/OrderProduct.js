@@ -25,6 +25,14 @@ module.exports = (sequelize, DataTypes) => {
                     msg: 'Order product amount cannot be empty.'
                 }
             }
+        },
+        accessTokenSecret: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        downloadsRemaining: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     }, {});
     OrderProduct.associate = function(models){

@@ -20,6 +20,9 @@ const ProductImageRoutes = require('./ProductImage');
 const OrderRouter = express.Router();
 const OrderRoutes = require('./Order');
 
+const OrderProductRouter = express.Router();
+const OrderProductRoutes = require('./OrderProduct')
+
 const CartRouter = express.Router();
 const CartRoutes = require('./Cart');
 
@@ -59,6 +62,9 @@ module.exports = (app) => {
 
     app.use('/api/order', OrderRouter);
     OrderRoutes(OrderRouter);
+
+    app.use('/api/order-product', OrderProductRouter);
+    OrderProductRoutes(OrderProductRouter);
 
     app.use('/api/cart', CartRouter);
     CartRoutes(CartRouter);

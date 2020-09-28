@@ -1,4 +1,5 @@
 'use strict';
+const crypto = require('crypto');
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 const shippo = require('shippo')(process.env.SHIPPO_KEY);
 const db = require('../models');
@@ -312,6 +313,24 @@ exports.processOrder = async(req, res) => {
                 where: {
                     orderId: order.id
                 }
+            });
+
+            let digitalSecret = Date.now();
+            crypto.createHash('md5').update(data).digest('hex');
+
+            //set digital order products to delivered and fill in downloadsRemaining field
+            await db.sequelize.query(`
+            UPDATE OrderProducts 
+            INNER JOIN Products 
+            ON OrderProducts.ProductId = Products.id
+            SET 
+            OrderProducts.downloadsRemaining = Products.downloadsPermitted * OrderProducts.amount,
+            OrderProducts.orderStatus = 'Delivered',
+            OrderProducts.accessTokenSecret = ?
+            WHERE OrderProducts.orderId = ? and Products.isDigital = 1
+            `, {
+                replacements: [digitalSecret.toLowerCase(), data.id],
+                type: db.sequelize.QueryTypes.UPDATE
             });
 
             //send an email to the customer using the default template

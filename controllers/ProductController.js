@@ -8,6 +8,7 @@ const ProductCategory = db.ProductCategory;
 const Category = db.Category;
 const validators = require('../helpers/validation');
 const { isUndefinedOrNull, isUndefinedOrNullOrEmpty } = require('../helpers');
+const jwt = require('jsonwebtoken');
 
 function removeLocalFile(path){
     return new Promise((resolve, reject) => {
@@ -284,5 +285,47 @@ exports.searchProducts = async(req, res, next) => {
         })
     }catch(e){
         next(e);
+    }
+}
+
+exports.downloadDigital = async(req, res, next) => {
+    const token = req.headers.DigitalAccess;
+    if(isUndefinedOrNullOrEmpty(token)){
+        throw Error();
+    }
+    if(isUndefinedOrNullOrEmpty(req.query.orderId)){
+        throw Error();
+    }
+    try{
+        const orderProduct = await OrderProduct.findOne({
+            where: {
+                orderId: req.query.orderId,
+                productId: req.params.id,
+                downloadsRemaining: {
+                    [db.sequelize.Op.gt]: 0
+                }
+            },
+            include: Product,
+            raw: true
+        });
+        if(!orderProduct){
+            throw Error();
+        }
+        const verifyPromise = new Promise((resolve, reject) => {
+            jwt.verify(token, secret, (err, decoded)=>{
+                if (err) reject(err);
+                else resolve(decoded)
+            });
+        });
+        const verifiedToken = await verifyPromise;
+        if(verifiedPromise){
+            return res.status(200).download(orderProduct.Product.digitalPath);
+        }
+        throw Error();
+    }catch(e){
+        return res.status(403).json({
+            type: 'AuthorizationError',
+            statusMessage: 'You are not authorized to view this resource.'
+        });
     }
 }

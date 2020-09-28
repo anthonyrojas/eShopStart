@@ -9,10 +9,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 notNull: {
-                    msg: 'The total amount for this order must be specified.'
+                    msg: 'The total for this order must be specified.'
                 },
                 notEmpty: {
-                    msg: 'The total amount for this order must be specified.'
+                    msg: 'The total for this order must be specified.'
                 }
             }
         },

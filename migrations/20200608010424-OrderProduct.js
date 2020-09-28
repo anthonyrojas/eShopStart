@@ -37,6 +37,14 @@ module.exports = {
         type: Sequelize.ENUM('Processing', 'Fulfilling', 'Delivered'),
         allowNull: false
       },
+      downloadsRemaining: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      accessTokenSecret: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
