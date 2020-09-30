@@ -317,8 +317,10 @@ exports.downloadDigital = async(req, res, next) => {
                 else resolve(decoded)
             });
         });
+        orderProduct.downloadsRemaining = orderProduct.downloadsRemaining - 1;
+        await orderProduct.save();
         const verifiedToken = await verifyPromise;
-        if(verifiedPromise){
+        if(verifiedToken){
             return res.status(200).download(orderProduct.Product.digitalPath);
         }
         throw Error();
