@@ -79,6 +79,12 @@ exports.generateToken =  async (req, res, next) => {
 
 exports.validateToken = async (req, res, next) => {
     const accessToken = req.headers.authorization;
+    if(!accessToken){
+        return res.status(401).json({
+            type: 'AuthenticationError',
+            statusMessage: 'No token provided. Unauthenticated request.'
+        })
+    }
     try{
         const decoded = await verifyToken(accessToken, process.env.TOKEN_SECRET);
         if(!decoded.isRefresh){
@@ -99,7 +105,7 @@ exports.validateToken = async (req, res, next) => {
                 statusMessage: 'Access token is expired. Refresh your tokens.'
             })
         }else{
-            return res.status(400).json({
+            return res.status(401).json({
                 type: e.name,
                 statusMessage: 'Access token is invalid.'
             })
