@@ -101,9 +101,17 @@ exports.addAccount = async (req, res, next) => {
     }
     try{
         let userRole = 'Customer';
+        const saCount = await User.count({
+            col: 'id',
+            where: {
+                role: 'SuperAdmin'
+            }
+        });
         //check if user is signed in
         if(!helpers.isUndefinedOrNullOrEmpty(res.locals.userId) && res.locals.role === 'SuperAdmin'){
             userRole = req.body.role;
+        }else if(saCount === 0){
+            userRole = 'SuperAdmin';
         }else if(!helpers.isUndefinedOrNullOrEmpty(res.locals.userId) && res.locals.role !== 'SuperAdmin'){
             //the signed in user is not a superadmin, and therefore cannot add accounts
             return res.status(403).json({
@@ -118,7 +126,7 @@ exports.addAccount = async (req, res, next) => {
             firstName: req.body.firstName.trim(),
             lastName: req.body.lastName.trim(),
             middleInitial: req.body.middleInitial || null,
-            birthdate: req.body.birthdate,
+            birthdate: new Date(req.body.birthdate).toISOString(),
             role: userRole
         });
         user.password = undefined;
