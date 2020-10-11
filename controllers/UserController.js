@@ -45,7 +45,8 @@ exports.beginLogin = async (req, res, next) => {
         if(user === null){
             return res.status(400).json({
                 type: 'UserNotFound',
-                statusMessage: 'A user with that email does not exist.'
+                statusMessage: 'A user with that email does not exist.',
+                errors: {}
             });
         }
         const validLogin = await compareHash(req.body.password, user.password);
@@ -57,13 +58,15 @@ exports.beginLogin = async (req, res, next) => {
         }else{
             return res.status(400).json({
                 type: 'AuthenticationError',
-                statusMessage: 'Login failed.'
+                statusMessage: 'Login failed.',
+                errors: {}
             })
         }
     }catch(e){
         return res.status(400).json({
             type: 'AuthenticationError',
-            statusMessage: 'Login failed.'
+            statusMessage: 'Login failed.',
+            errors: {}
         })
     }
 }
