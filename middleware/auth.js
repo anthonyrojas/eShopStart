@@ -80,7 +80,7 @@ exports.generateToken =  async (req, res, next) => {
 exports.validateToken = async (req, res, next) => {
     const accessToken = req.headers.authorization;
     if(!accessToken){
-        return res.status(403).json({
+        return res.status(401).json({
             type: 'AuthenticationError',
             statusMessage: 'No token provided. Unauthenticated request.'
         })
@@ -93,19 +93,19 @@ exports.validateToken = async (req, res, next) => {
             res.locals.role = decoded.role;
             next();
         }else{
-            return res.status(403).json({
+            return res.status(401).json({
                 type: 'AuthenticationError',
                 statusMessage: 'Invalid token. Refresh token provided.'
             });
         }
     }catch(e){
         if(e.name === 'TokenExpiredError'){
-            return res.status(400).json({
+            return res.status(401).json({
                 type: e.name,
                 statusMessage: 'Access token is expired. Refresh your tokens.'
             })
         }else{
-            return res.status(403).json({
+            return res.status(401).json({
                 type: e.name,
                 statusMessage: 'Access token is invalid.'
             })
