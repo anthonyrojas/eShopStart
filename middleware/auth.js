@@ -129,12 +129,12 @@ exports.refreshTokens = async(req, res, next)=>{
         next();
     }catch(e){
         if(e.name === 'TokenExpiredError'){
-            return res.status(400).json({
+            return res.status(401).json({
                 type: e.name,
                 statusMessage: 'Refresh token is expired. Please sign in again.'
             })
         }else{
-            return res.status(400).json({
+            return res.status(401).json({
                 type: e.name,
                 statusMessage: 'Refresh token is invalid.'
             })
