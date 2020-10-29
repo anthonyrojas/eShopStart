@@ -39,5 +39,5 @@ module.exports = (router) => {
     router.delete('/:id', Auth.validateToken, ProductController.deleteProduct);
     router.get('slug/:slug', ProductController.getProductBySlug);
     router.get('/search', ProductController.searchProducts);
-    router.get('/download/:id', ProductController.downloadDigital);
+    router.get('/download/:id', Auth.validateToken, ProductController.downloadDigital);
 }

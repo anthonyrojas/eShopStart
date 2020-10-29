@@ -9,6 +9,7 @@ const Category = db.Category;
 const validators = require('../helpers/validation');
 const { isUndefinedOrNull, isUndefinedOrNullOrEmpty } = require('../helpers');
 const jwt = require('jsonwebtoken');
+const { is } = require('sequelize/types/lib/operators');
 
 function removeLocalFile(path){
     return new Promise((resolve, reject) => {
@@ -290,10 +291,10 @@ exports.searchProducts = async(req, res, next) => {
 
 exports.downloadDigital = async(req, res, next) => {
     const token = req.headers.DigitalAccess;
-    if(isUndefinedOrNullOrEmpty(token)){
+    if(res.locals.userRole !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(token)){
         throw Error();
     }
-    if(isUndefinedOrNullOrEmpty(req.query.orderId)){
+    if(res.locals.userRole !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(req.query.orderId)){
         throw Error();
     }
     try{
@@ -308,6 +309,9 @@ exports.downloadDigital = async(req, res, next) => {
             include: Product,
             raw: true
         });
+        if(res.locals.userRole === 'SuperAdmin'){
+            return res.status(200).download(order.Product.digitalPath);
+        }
         if(!orderProduct){
             throw Error();
         }
