@@ -74,7 +74,7 @@ exports.validateLoginRequest = (req) => {
 exports.validateProductRequest = (req) => {
     let errorCollection = {};
     let errorExists = false;
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.name){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.name)){
         errorCollection.name = 'Product name is required.';
         errorExists = true;
     }
