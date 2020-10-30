@@ -9,7 +9,6 @@ const Category = db.Category;
 const validators = require('../helpers/validation');
 const { isUndefinedOrNull, isUndefinedOrNullOrEmpty } = require('../helpers');
 const jwt = require('jsonwebtoken');
-const { is } = require('sequelize/types/lib/operators');
 
 function removeLocalFile(path){
     return new Promise((resolve, reject) => {
