@@ -74,11 +74,11 @@ exports.validateLoginRequest = (req) => {
 exports.validateProductRequest = (req) => {
     let errorCollection = {};
     let errorExists = false;
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.name.trim())){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.name){
         errorCollection.name = 'Product name is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.description.trim())){
+    if(helpers.isUndefinedOrNullOrEmpty(req.body.description)){
         errorCollection.description = 'Product description is required.';
         errorExists = true;
     }
