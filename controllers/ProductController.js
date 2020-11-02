@@ -37,7 +37,7 @@ exports.addProduct = async (req, res, next)=>{
         });
     }
     try{
-        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
+        const slug = req.body.name.trim().toLowerCase().replaceAll(/\ /, "-");
         //check if it is a digital product
         let digitalPath;
         if(req.body.isDigital && req.file){
@@ -107,7 +107,7 @@ exports.updateProduct = async (req, res, next) => {
                 statusMessage: 'Unable to update product because it was not found.'
             })
         }
-        const slug = req.body.name.trim().toLowerCase().replace(/\ /, "-");
+        const slug = req.body.name.trim().toLowerCase().replaceAll(/\ /, "-");
         if(req.body.isDigital && req.baseUrl.split('/')[urlLength-1] === 'digital'){
             product.downloadsPermitted = req.body.downloadsPermitted;
             //check if a file is included with the update
