@@ -57,7 +57,7 @@ app.use((err, req, res, next)=>{
         return res.status(500).json({
             type: err.name,
             statusMessage: 'Oops! Something went wrong.',
-            errorMessage: err.message
+            errorMessage: err.message || err.toString()
         });
     }
 });
