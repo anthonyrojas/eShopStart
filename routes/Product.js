@@ -19,8 +19,9 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: function(req, file, cb){
-        let data = file.originalname + Date.now();
-        crypto.createHash('md5').update(data).digest('hex');
+        const extIndex = file.originalname.lastIndexOf('.');
+        let data = `${file.originalname.substring(0, extIndex)}.${Date.now()}`;
+        // data = crypto.createHash('md5').update(data).digest('hex');
         const filename = data.toLowerCase();
         const fileSplit = file.originalname.split(".");
         const fileExt = fileSplit[fileSplit.length - 1];

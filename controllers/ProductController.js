@@ -37,7 +37,9 @@ exports.addProduct = async (req, res, next)=>{
         });
     }
     try{
-        const slug = req.body.name.trim().toLowerCase().replaceAll(/\ /, "-");
+        let slug = req.body.name.trim().toLowerCase().replace(/\s /, "-");
+        //.replaceAll(/\s /, "-")
+        slug = slug.split(' ').join('-');
         //check if it is a digital product
         let digitalPath;
         if(req.body.isDigital && req.file){
