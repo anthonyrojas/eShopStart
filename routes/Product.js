@@ -31,14 +31,14 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 
 module.exports = (router) => {
-    router.get('id/:id', ProductController.getProduct);
+    router.get('/id/:id', ProductController.getProduct);
     router.post('/', Auth.validateToken, ProductController.addProduct);
     router.post('/digital', Auth.validateToken, upload.single('productFile'), ProductController.addProduct);
     router.put('/:id', Auth.validateToken, ProductController.updateProduct);
     router.put('/:id/digital', Auth.validateToken, ProductController.updateProduct);
     router.get('/', ProductController.getProducts);
     router.delete('/:id', Auth.validateToken, ProductController.deleteProduct);
-    router.get('slug/:slug', ProductController.getProductBySlug);
+    router.get('/slug/:slug', ProductController.getProductBySlug);
     router.get('/search', ProductController.searchProducts);
     router.get('/download/:id', Auth.validateToken, ProductController.downloadDigital);
 }
