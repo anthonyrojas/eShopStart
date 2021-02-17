@@ -170,6 +170,21 @@ exports.getProducts = async (req, res) => {
     try{
         let limit = isUndefinedOrNull(req.query.limit) ? 20 : Number(req.query.limit);
         let skip = isUndefinedOrNull(req.query.skip) ? 0 : Number(req.query.skip);
+        let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy)  ? null : req.query.orderBy;
+        let sort = isUndefinedOrNullOrEmpty(req.query.sort) && !(req.query.sort.toLowerCase() === 'asc' || req.query.sort.toLowerCase() === 'desc')  ? null : req.query.sort.toUpperCase();
+        let sortingCmds = []
+        if(!isUndefinedOrNullOrEmpty(orderBy)){
+            for(let k in Product.rawAttributes){
+                if(k === orderBy){
+                    sortingCmds.push([orderBy, sort]);
+                }
+            }
+        }
+        if(sortingCmds.length === 0){;
+            sortingCmds.push(['id', 'ASC'])
+        }else if(orderBy !== 'id'){
+            sortingCmds.push(['id', 'ASC']);
+        }
         const products = await Product.findAll({
             attributes: ['id', 'name', 'slug', 'price', 'isActive'],
             include:{
@@ -177,8 +192,9 @@ exports.getProducts = async (req, res) => {
                 required: false,
                 where: {
                     order: 1
-                }
+                },
             },
+            order: sortingCmds,
             limit: limit,
             offset: skip
         });
@@ -202,7 +218,7 @@ exports.getProducts = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
     const userRole = res.locals.role;
     const allowedRoles = ['SuperAdmin', 'Admin'];
-    if(!allowedRoles.includes(userRole)){
+    if(!allowedRoles.contains(userRole)){
         return res.status(403).json({
             type: 'AuthorizationError',
             statusMessage: 'You are not authorized to add a product.'
@@ -252,6 +268,21 @@ exports.searchProducts = async(req, res, next) => {
         const priceStart = isUndefinedOrNullOrEmpty(req.query.priceStart) ? Number.MIN_VALUE : Number(req.query.priceStart);
         const priceEnd = isUndefinedOrNullOrEmpty(req.query.priceEnd) ? Number.MAX_VALUE : Number(req.query.priceEnd);
         const productName = isUndefinedOrNullOrEmpty(req.query.productName) ? '' : req.query.productName;
+        let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy)  ? null : req.query.orderBy;
+        let sort = isUndefinedOrNullOrEmpty(req.query.sort) && !(req.query.sort.toLowerCase() === 'asc' || req.query.sort.toLowerCase() === 'desc')  ? null : req.query.sort.toUpperCase();
+        let sortingCmds = [];
+        if(!isUndefinedOrNullOrEmpty(orderBy)){
+            for(let k in Product.rawAttributes){
+                if(k === orderBy){
+                    sortingCmds.push([orderBy, sort]);
+                }
+            }
+        }
+        if(sortingCmds.length === 0){;
+            sortingCmds.push(['id', 'ASC'])
+        }else if(orderBy !== 'id'){
+            sortingCmds.push(['id', 'ASC']);
+        }
         const products = await Product.findAll({
             attributes: ['id', 'name', 'slug', 'price', 'isActive'],
             include: [
@@ -272,6 +303,7 @@ exports.searchProducts = async(req, res, next) => {
                     }
                 }
             ],
+            order: sortingCmds,
             where:{
                 price: {
                     [db.Sequelize.Op.between]: [priceStart-1, priceEnd+1]
