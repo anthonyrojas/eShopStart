@@ -170,8 +170,11 @@ exports.getProducts = async (req, res) => {
     try{
         let limit = isUndefinedOrNull(req.query.limit) ? 20 : Number(req.query.limit);
         let skip = isUndefinedOrNull(req.query.skip) ? 0 : Number(req.query.skip);
-        let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy)  ? null : req.query.orderBy;
-        let sort = isUndefinedOrNullOrEmpty(req.query.sort) && !(req.query.sort.toLowerCase() === 'asc' || req.query.sort.toLowerCase() === 'desc')  ? null : req.query.sort.toUpperCase();
+        let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy)  ? '' : req.query.orderBy;
+        let sort = 'ASC';
+        if(!isUndefinedOrNullOrEmpty(req.query.sort) && (req.query.sort.toLowerCase() !== 'asc' || req.query.sort.toLowerCase() !== 'desc')){
+            sort = sort.toUpperCase();
+        }
         let sortingCmds = []
         if(!isUndefinedOrNullOrEmpty(orderBy)){
             for(let k in Product.rawAttributes){
@@ -180,9 +183,7 @@ exports.getProducts = async (req, res) => {
                 }
             }
         }
-        if(sortingCmds.length === 0){;
-            sortingCmds.push(['id', 'ASC'])
-        }else if(orderBy !== 'id'){
+        if(orderBy !== 'id'){
             sortingCmds.push(['id', 'ASC']);
         }
         const products = await Product.findAll({
@@ -269,8 +270,11 @@ exports.searchProducts = async(req, res, next) => {
         const priceEnd = isUndefinedOrNullOrEmpty(req.query.priceEnd) ? Number.MAX_VALUE : Number(req.query.priceEnd);
         const productName = isUndefinedOrNullOrEmpty(req.query.productName) ? '' : req.query.productName;
         let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy)  ? null : req.query.orderBy;
-        let sort = isUndefinedOrNullOrEmpty(req.query.sort) && !(req.query.sort.toLowerCase() === 'asc' || req.query.sort.toLowerCase() === 'desc')  ? null : req.query.sort.toUpperCase();
-        let sortingCmds = [];
+        let sort = 'ASC';
+        if(!isUndefinedOrNullOrEmpty(req.query.sort) && (req.query.sort.toLowerCase() !== 'asc' || req.query.sort.toLowerCase() !== 'desc')){
+            sort = sort.toUpperCase();
+        }
+        let sortingCmds = []
         if(!isUndefinedOrNullOrEmpty(orderBy)){
             for(let k in Product.rawAttributes){
                 if(k === orderBy){
@@ -278,9 +282,7 @@ exports.searchProducts = async(req, res, next) => {
                 }
             }
         }
-        if(sortingCmds.length === 0){;
-            sortingCmds.push(['id', 'ASC'])
-        }else if(orderBy !== 'id'){
+        if(orderBy !== 'id'){
             sortingCmds.push(['id', 'ASC']);
         }
         const products = await Product.findAll({
