@@ -119,7 +119,8 @@ exports.addProductImage = async (req, res, next) => {
             statusMessage: 'Product image uploaded successfully.'
         });
     }catch(e){
-        const err = new Error('Failed to upload product image at this time.');
+        next(e);
+        // const err = new Error('Failed to upload product image at this time.');
         next(err);
     }
 }
