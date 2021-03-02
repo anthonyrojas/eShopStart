@@ -83,7 +83,7 @@ exports.addProductImage = async (req, res, next) => {
     const isLocal = (process.env.USING_S3 !== 'true');
     try{
         let productImage;
-        imgOrder = await ProductImage.max('order', {
+        const imgOrder = await ProductImage.max('order', {
             where: {
                 productId: req.params.productId
             }
