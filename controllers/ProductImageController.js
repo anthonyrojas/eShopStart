@@ -83,6 +83,11 @@ exports.addProductImage = async (req, res, next) => {
     const isLocal = (process.env.USING_S3 !== 'true');
     try{
         let productImage;
+        imgOrder = await ProductImage.max('order', {
+            where: {
+                productId: req.params.productId
+            }
+        });
         if(!isLocal){
             const s3 = new AWS.S3({
                 accessKeyId: process.env.S3_ID,
@@ -97,14 +102,14 @@ exports.addProductImage = async (req, res, next) => {
             await removeLocalFile(file.path);
             productImage = await ProductImage.create({
                 url: fileUpload.Location,
-                order: req.body.order,
+                order: isNaN(imgOrder) ? 0 : imgOrder + 1,
                 productId: req.params.productId,
                 isLocal: isLocal
             });
         }else{
             productImage = await ProductImage.create({
                 url: file.path,
-                order: req.body.order,
+                order: isNaN(imgOrder) ? 0 : imgOrder + 1,
                 productId: req.params.productId,
                 isLocal: isLocal
             });
