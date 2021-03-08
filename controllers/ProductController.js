@@ -192,7 +192,7 @@ exports.getProducts = async (req, res) => {
                 model: ProductImage,
                 required: false,
                 where: {
-                    order: 1
+                    order: 0
                 },
             },
             order: sortingCmds,
@@ -301,7 +301,7 @@ exports.searchProducts = async(req, res, next) => {
                     model: ProductImage,
                     required: false,
                     where: {
-                        order: 1
+                        order: 0
                     }
                 }
             ],
