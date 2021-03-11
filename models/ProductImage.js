@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        label: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
         order: {
             type: DataTypes.INTEGER,
             allowNull: false,

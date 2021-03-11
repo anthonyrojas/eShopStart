@@ -102,6 +102,7 @@ exports.addProductImage = async (req, res, next) => {
             await removeLocalFile(file.path);
             productImage = await ProductImage.create({
                 url: fileUpload.Location,
+                label: req.body.label,
                 order: isNaN(imgOrder) ? 0 : imgOrder + 1,
                 productId: req.params.productId,
                 isLocal: isLocal
@@ -110,6 +111,7 @@ exports.addProductImage = async (req, res, next) => {
             productImage = await ProductImage.create({
                 url: file.path,
                 order: isNaN(imgOrder) ? 0 : imgOrder + 1,
+                label: req.body.label,
                 productId: req.params.productId,
                 isLocal: isLocal
             });
@@ -136,7 +138,8 @@ exports.updateProductImage = async (req, res, next) =>{
     }
     try{
         const updatedRows = await ProductImage.update({
-            order: req.body.order
+            order: req.body.order,
+            label: req.body.label
         }, {
             where: {
                 id: req.params.imageId

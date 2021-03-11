@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      label: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
       isLocal: {
         type: Sequelize.BOOLEAN,
         allowNull: false
