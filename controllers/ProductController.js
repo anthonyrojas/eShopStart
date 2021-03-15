@@ -154,10 +154,17 @@ exports.getProduct = async (req, res) => {
         const product = await Product.findByPk(req.params.id, {
             include: ProductImage
         });
-        return res.status(200).json({
-            statusMessage: 'Product returned.',
-            product: product
-        });
+        if(!product){
+            return res.status(404).json({
+                statusMessage: 'Unable to find or retrieve product.',
+                type: 'NotFoundError'
+            });
+        }else{
+            return res.status(200).json({
+                statusMessage: 'Product returned.',
+                product: product
+            });
+        }
     }catch(e){
         return res.status(404).json({
             type: 'NotFoundError',
@@ -250,10 +257,17 @@ exports.getProductBySlug = async (req, res) => {
                 slug: req.params.slug
             }
         });
-        return res.status(200).json({
-            statusMessage: 'Product returned.',
-            product: product
-        });
+        if(!product){
+            return res.status(404).json({
+                statusMessage: 'Unable to find or retrieve product.',
+                type: 'NotFoundError'
+            });
+        }else{
+            return res.status(200).json({
+                statusMessage: 'Product returned.',
+                product: product
+            });
+        }
     }catch(e){
         return res.status(404).json({
             type: 'NotFoundError',
