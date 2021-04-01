@@ -2,7 +2,7 @@
 const db = require('../models');
 const AWS = require('aws-sdk')
 const fs = require('fs');
-const Product = require('../routes/Product');
+const Product = db.Product;
 const ProductImage = db.ProductImage;
 
 function uploadToS3(s3, params){
