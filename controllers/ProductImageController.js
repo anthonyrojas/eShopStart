@@ -163,7 +163,13 @@ exports.updateProductImages = async(req, res, next) => {
         })
     }
     try{
-        const product = await Product.findByPk(req.params.productId);
+        const product = await Product.findByPk(req.params.productId, {
+            include: [
+                {
+                    model: ProductImage
+                }
+            ]
+        });
         const productImages = await product.setProductImages(req.body.productImages);
         return res.status(200).json({
             statusMessage: 'Product images updated.',
