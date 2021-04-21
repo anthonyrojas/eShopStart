@@ -163,17 +163,18 @@ exports.updateProductImages = async(req, res, next) => {
         })
     }
     try{
-        const product = await Product.findByPk(req.params.productId, {
-            include: [
-                {
-                    model: ProductImage
+        req.body.productImages.forEach(productImage => {
+            await ProductImage.update({
+                order: productImage.order
+            }, {
+                where: {
+                    id: productImage.id
                 }
-            ]
-        });
-        const productImages = await product.setProductImages(req.body.productImages);
+            })
+        })
         return res.status(200).json({
             statusMessage: 'Product images updated.',
-            productImages: productImages
+            productImages: req.body.productImages
         });
     }catch(e){
         next(e);
