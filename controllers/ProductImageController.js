@@ -163,7 +163,7 @@ exports.updateProductImages = async(req, res, next) => {
         })
     }
     try{
-        req.body.productImages.forEach(productImage => {
+        req.body.productImages.forEach(async (productImage) => {
             await ProductImage.update({
                 order: productImage.order
             }, {
