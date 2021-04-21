@@ -152,7 +152,12 @@ exports.updateProduct = async (req, res, next) => {
 exports.getProduct = async (req, res) => {
     try{
         const product = await Product.findByPk(req.params.id, {
-            include: ProductImage
+            include: ProductImage,
+            order: [
+                [{
+                    model: ProductImage
+                }, 'order', 'asc']
+            ]
         });
         if(!product){
             return res.status(404).json({
@@ -255,7 +260,12 @@ exports.getProductBySlug = async (req, res) => {
             include: ProductImage,
             where: {
                 slug: req.params.slug
-            }
+            },
+            order: [
+                [{
+                    model: ProductImage
+                }, 'order', 'asc']
+            ]
         });
         if(!product){
             return res.status(404).json({
