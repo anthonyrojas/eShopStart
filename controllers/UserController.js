@@ -265,7 +265,7 @@ exports.getUsers = async(req, res) => {
             let limit = helpers.isUndefinedOrNullOrEmpty(req.query.limit) ? 20 : Number(req.query.limit);
             let skip = helpers.isUndefinedOrNullOrEmpty(req.query.skip) ? 0 : Number(req.query.skip);
             const users = await User.findAll({
-                attributes: ['id', 'phone', 'email', 'firstName', 'lastName', 'createdAt', 'updatedAt'],
+                attributes: ['id', 'email', 'firstName', 'lastName', 'createdAt', 'updatedAt'],
                 limit: limit,
                 offset: skip
             });
