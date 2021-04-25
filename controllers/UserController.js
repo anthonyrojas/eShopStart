@@ -261,7 +261,7 @@ exports.getUser = async (req, res) => {
 exports.getUsers = async(req, res) => {
     let userId = res.locals.userId;
     try{
-        if(res.locals.role !== 'SuperAdmin'){
+        if(res.locals.role === 'SuperAdmin'){
             let limit = helpers.isUndefinedOrNullOrEmpty(req.query.limit) ? 20 : Number(req.query.limit);
             let skip = helpers.isUndefinedOrNullOrEmpty(req.query.skip) ? 0 : Number(req.query.skip);
             const users = await User.findAll({
@@ -273,7 +273,8 @@ exports.getUsers = async(req, res) => {
                 statusMessage: 'Users returned.',
                 users,
                 limit,
-                skip
+                skip,
+                total: await User.count({col: 'id'})
             });
         }else{
             return res.status(403).json({
