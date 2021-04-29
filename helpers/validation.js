@@ -1,6 +1,8 @@
 'use strict';
 const helpers = require('./index');
-exports.validateUserRequest = (req, operation)=>{
+const enums = require('./enums')
+exports.validateUserRequest = (req, operation, userRole=null)=>{
+    let validRoles = ['SuperAdmin'];
     let errorCollection = {}
     let errorExists = false;
     if(operation === 'update account' && helpers.isUndefinedOrNullOrEmpty(req.body.id)){
@@ -21,6 +23,13 @@ exports.validateUserRequest = (req, operation)=>{
     }
     if(helpers.isUndefinedOrNullOrEmpty(req.body.lastName.trim())){
         errorCollection.lastName = 'Last name is required.';
+        errorExists = true;
+    }
+    if(userRole === 'SuperAdmin' && helpers.isUndefinedOrNullOrEmpty(req.body.role.trim())){
+        errorCollection.role = 'Role is required.';
+        errorExists = true;
+    }else if(userRole === 'SuperAdmin' && !enums.roles.includes(req.body.role)){
+        errorCollection.role = 'Valid role must be assigned to this user.';
         errorExists = true;
     }
     // if(helpers.isUndefinedOrNullOrEmpty(req.body.middleInitial)){

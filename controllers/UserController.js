@@ -91,11 +91,12 @@ exports.refreshTokens = async (req, res) => {
 
 //create a user account
 exports.addAccount = async (req, res, next) => {
-    const validationErrors = validators.validateUserRequest(req, 'add');
+    const validationErrors = validators.validateUserRequest(req, 'add', res.locals.role);
+    
     if(validationErrors.errorExists){
         return res.status(500).json({
             type: 'ValidationError',
-            statusMessage: 'There are errors in your sumbission',
+            statusMessage: 'There are errors in your submission',
             errors: validationErrors.errors            
         });
     }
