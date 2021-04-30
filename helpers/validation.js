@@ -36,7 +36,7 @@ exports.validateUserRequest = (req, operation, userRole=null)=>{
     //     errorCollection.middleInitial = 'Middle initial is required.';
     //     errorExists = true;
     // }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.birthdate)){
+    if(helpers.isUndefinedOrNull(req.body.birthdate)){
         errorCollection.birthdate = 'Birth date is required.';
         errorExists = true;
     }
