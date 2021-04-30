@@ -109,11 +109,11 @@ exports.addAccount = async (req, res, next) => {
             }
         });
         //check if user is signed in
-        if(!helpers.isUndefinedOrNullOrEmpty(res.locals.userId) && res.locals.role === 'SuperAdmin'){
+        if(!helpers.isUndefinedOrNull(res.locals.userId) && res.locals.role === 'SuperAdmin'){
             userRole = req.body.role;
         }else if(saCount === 0){
             userRole = 'SuperAdmin';
-        }else if(!helpers.isUndefinedOrNullOrEmpty(res.locals.userId) && res.locals.role !== 'SuperAdmin'){
+        }else if(!helpers.isUndefinedOrNull(res.locals.userId) && res.locals.role !== 'SuperAdmin'){
             //the signed in user is not a superadmin, and therefore cannot add accounts
             return res.status(403).json({
                 type: 'AuthorizationError',
