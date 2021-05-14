@@ -288,7 +288,7 @@ exports.processOrder = async(req, res) => {
             });
     
             //decrease inventory
-            order.Products.forEach(product => {
+            order.Products.forEach(async (product) => {
                 const productInventory = product.Inventory;
                 const orderProduct = product.OrderProduct;
                 productInventory.amount = productInventory.amount - orderProduct.amount >= 0 ? productInventory.amount - orderProduct.amount : 0;
