@@ -13,6 +13,7 @@ const CartItem = db.CartItem;
 const Shipment = db.Shipment;
 const AppSetting = db.AppSetting;
 const MailUtils = require('../utils/Mail');
+const Inventory = db.Inventory;
 
 exports.beginCheckout = async(req, res, next) => {
     try{
@@ -270,7 +271,10 @@ exports.processOrder = async(req, res) => {
                 where: {
                     stripePaymentId: paymentIntent.id
                 },
-                include: [Shipment, Product, User]
+                include: [Shipment, {
+                    model: Product,
+                    include: [Inventory]
+                }, User]
             });
             order.paymentStatus = 'Completed';
             await order.save();
@@ -284,10 +288,17 @@ exports.processOrder = async(req, res) => {
             });
     
             //decrease inventory
-            await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.id = ?`, {
-                replacements: [data.id],
-                type: db.sequelize.QueryTypes.UPDATE
-            });
+            order.Products.forEach(product => {
+                const productInventory = product.Inventory;
+                const orderProduct = product.OrderProduct;
+                productInventory.amount = productInventory.amount - orderProduct.amount >= 0 ? productInventory.amount - orderProduct.amount : 0;
+                await productInventory.save(); 
+            })
+
+            // await db.sequelize.query(`UPDATE Inventories INNER JOIN OrderProducts ON OrderProducts.productId = Inventories.productId INNER JOIN Orders ON Orders.id = OrderProducts.orderId SET Inventories.amount = Inventories.amount - OrderProducts.amount WHERE Order.id = ?`, {
+            //     replacements: [data.id],
+            //     type: db.sequelize.QueryTypes.UPDATE
+            // });
 
             //purchase shipping if there exists one
             if(order.Shipment){

@@ -157,10 +157,6 @@ exports.validateInventoryRequest = (req) => {
         errorCollection.amount = 'Inventory amount is required.';
         errorExists = true;
     }
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.productId)){
-        errorCollection.productId = 'Product id is required.';
-        errorExists = true;
-    }
     return {
         errorExists,
         errors: errorCollection
