@@ -109,7 +109,7 @@ exports.updateProduct = async (req, res, next) => {
                 statusMessage: 'Unable to update product because it was not found.'
             })
         }
-        const slug = req.body.name.trim().toLowerCase().replaceAll(/\ /, "-");
+        const slug = req.body.name.trim().toLowerCase().replace(/\s /, "-");
         if(req.body.isDigital && req.baseUrl.split('/')[urlLength-1] === 'digital'){
             product.downloadsPermitted = req.body.downloadsPermitted;
             //check if a file is included with the update
