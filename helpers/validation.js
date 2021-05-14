@@ -153,7 +153,7 @@ exports.validateCategoryRequest = (req, operation) => {
 exports.validateInventoryRequest = (req) => {
     let errorExists =  false;
     let errorCollection = {};
-    if(helpers.isUndefinedOrNullOrEmpty(req.body.amount)){
+    if(helpers.isUndefinedOrNull(req.body.amount) || req.body.amount < 0){
         errorCollection.amount = 'Inventory amount is required.';
         errorExists = true;
     }
