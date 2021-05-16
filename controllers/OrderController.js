@@ -196,7 +196,8 @@ exports.getOrder = async(req, res, next) => {
                 where: {
                     id: req.params.id
                 },
-                include: Product
+                include: Product,
+
             });
         }else{
             order = await Order.findOne({
@@ -232,14 +233,45 @@ exports.getOrders = async(req, res, next) => {
     }
     try{
         let limit = isUndefinedOrNullOrEmpty(req.query.limit) ? 10 : Number(req.query.limit);
+        limit = limit > 1000 ? 1000 : limit; 
         let skip = isUndefinedOrNullOrEmpty(req.query.skip) ? 0 : Number(req.query.skip);
-        const orders = await Order.findAll({
-            where: {
-                userId: userId
-            },
-            limit: limit,
-            offset: skip
-        });
+        let orderBy = isUndefinedOrNullOrEmpty(req.query.orderBy) ? '' : req.query.orderBy;
+        let sort = 'DESC';
+        if(!isUndefinedOrNullOrEmpty(req.query.sort) && (req.query.sort.toLowerCase() !== 'asc' || req.query.sort.toLowerCase() !== 'desc')){
+            sort = sort.toUpperCase();
+        }
+        let sortingCmds = [];
+        if(!isUndefinedOrNullOrEmpty(orderBy)){
+            for(let k in Order.rawAttributes){
+                if(k === orderBy){
+                    sortingCmds.push([orderBy, sort]);
+                }
+            }
+        }
+        if(orderBy.trim().toLowerCase() !== 'createdat'){
+            sortingCmds.push(['createdAt', 'DESC']);
+        }
+        let orders = null;
+        if(isUndefinedOrNullOrEmpty(userId)){
+            orders = await Order.findAll({
+                limit: limit,
+                order: sortingCmds,
+                offset: skip,
+                include: {
+                    model: User,
+                    attributes: ['id', 'firstName', 'lastName', 'email']
+                }
+            });
+        }else{
+            orders = await Order.findAll({
+                where: {
+                    userId: userId
+                },
+                limit: limit,
+                offset: skip,
+                order: sortingCmds
+            });
+        }
         return res.status(200).json({
             statusMessage: 'Orders retrieved.',
             orders
