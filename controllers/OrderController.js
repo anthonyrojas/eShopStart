@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 const shippo = require('shippo')(process.env.SHIPPO_KEY);
 const db = require('../models');
-const { isUndefinedOrNullOrEmpty } = require('../helpers');
+const { isUndefinedOrNullOrEmpty, isUndefinedOrNull } = require('../helpers');
 const User = db.User;
 const Order = db.Order;
 const OrderProduct = db.OrderProduct;
@@ -222,10 +222,13 @@ exports.getOrder = async(req, res, next) => {
 }
 
 exports.getOrders = async(req, res, next) => {
-    const userRole = res.locals.userRole;
+    const userRole = res.locals.role;
     const adminRoles = ['SuperAdmin', 'Admin'];
     let userId = null;
-    if (isUndefinedOrNullOrEmpty(req.params.userId) && !adminRoles.includes(userRole)){
+    if(adminRoles.includes(userRole) && !isUndefinedOrNull(req.query.view) && req.query.view === 'all'){
+        userId = null;
+    }
+    else if (isUndefinedOrNullOrEmpty(req.params.userId)){
         userId = res.locals.userId;
     }
     else if(adminRoles.includes(userRole)){
