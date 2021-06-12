@@ -225,11 +225,11 @@ exports.getOrders = async(req, res, next) => {
     const userRole = res.locals.userRole;
     const adminRoles = ['SuperAdmin', 'Admin'];
     let userId = null;
-    if (isUndefinedOrNullOrEmpty(req.params.userId)){
+    if (isUndefinedOrNullOrEmpty(req.params.userId) && !adminRoles.includes(userRole)){
         userId = res.locals.userId;
     }
     else if(adminRoles.includes(userRole)){
-        userId = req.params.id
+        userId = req.params.userId
     }
     try{
         let limit = isUndefinedOrNullOrEmpty(req.query.limit) ? 10 : Number(req.query.limit);
