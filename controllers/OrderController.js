@@ -252,6 +252,7 @@ exports.getOrders = async(req, res, next) => {
             sortingCmds.push(['createdAt', 'DESC']);
         }
         let orders = null;
+        let total = 0;
         if(isUndefinedOrNullOrEmpty(userId)){
             orders = await Order.findAll({
                 limit: limit,
@@ -262,6 +263,9 @@ exports.getOrders = async(req, res, next) => {
                     attributes: ['id', 'firstName', 'lastName', 'email']
                 }
             });
+            total = await Order.count({
+                col: 'id'
+            });
         }else{
             orders = await Order.findAll({
                 where: {
@@ -271,10 +275,17 @@ exports.getOrders = async(req, res, next) => {
                 offset: skip,
                 order: sortingCmds
             });
+            total = await Order.count({
+                col: 'id',
+                where: {
+                    userId: userId
+                }
+            });
         }
         return res.status(200).json({
             statusMessage: 'Orders retrieved.',
-            orders
+            orders,
+            total
         });
     }catch(e){
         return res.status(500).json({
