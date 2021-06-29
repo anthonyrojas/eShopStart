@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         accessTokenSecret: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: true
         },
         downloadsRemaining: {

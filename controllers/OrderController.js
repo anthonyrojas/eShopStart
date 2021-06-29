@@ -196,16 +196,32 @@ exports.getOrder = async(req, res, next) => {
                 where: {
                     id: req.params.id
                 },
-                include: Product,
+                include: [{
+                    model: Product,
+                    through: {
+                        model: OrderProduct,
+                        attributes: ['orderStatus', 'amount', 'downloadsRemaining']
+                    }
+                }, {
+                    model: User,
+                    attributes: ['id', 'email', 'firstName', 'lastName']
+                }],
 
             });
         }else{
             order = await Order.findOne({
                 where: {
                     id: req.params.id,
-                    userId: res.locals.userId
+                    userId: res.locals.userId,
+                    paymentStatus: 'Completed'
                 },
-                include: Product
+                include: [{
+                    model: Product,
+                    through: {
+                        model: OrderProduct,
+                        attributes: ['orderStatus', 'amount', 'downloadsRemaining']
+                    }  
+                }],
             });
         }
         return res.status(200).json({
