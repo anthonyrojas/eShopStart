@@ -224,6 +224,12 @@ exports.getOrder = async(req, res, next) => {
                 }],
             });
         }
+        if(!order){
+            return res.status(404).json({
+                statusMessage: 'Order not found.',
+                order
+            })
+        }
         return res.status(200).json({
             statusMessage: 'Order returned.',
             order
