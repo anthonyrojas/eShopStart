@@ -89,6 +89,7 @@ exports.getInventory = async(req, res) => {
                 productId: req.params.productId
             }
         });
+        if(!inventory) throw Error();
         return res.status(200).json({
             statusMessage: 'Inventory retrieved.',
             inventory
