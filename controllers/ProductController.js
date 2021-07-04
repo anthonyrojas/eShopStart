@@ -357,6 +357,14 @@ exports.downloadDigital = async(req, res, next) => {
         throw Error();
     }
     try{
+        if(res.locals.userRole === 'SuperAdmin'){
+            const product = await Product.findOne({
+                where: {
+                    productId: req.params.id
+                }
+            })
+            return res.status(200).download(product.digitalPath);
+        }
         const orderProduct = await OrderProduct.findOne({
             where: {
                 orderId: req.query.orderId,
@@ -368,9 +376,6 @@ exports.downloadDigital = async(req, res, next) => {
             include: Product,
             raw: true
         });
-        if(res.locals.userRole === 'SuperAdmin'){
-            return res.status(200).download(order.Product.digitalPath);
-        }
         if(!orderProduct){
             throw Error();
         }
