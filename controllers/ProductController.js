@@ -360,7 +360,7 @@ exports.downloadDigital = async(req, res, next) => {
         if(res.locals.role === 'SuperAdmin'){
             const product = await Product.findOne({
                 where: {
-                    productId: req.params.id
+                    id: req.params.id
                 }
             })
             return res.status(200).download(product.digitalPath);
