@@ -350,14 +350,14 @@ exports.searchProducts = async(req, res, next) => {
 
 exports.downloadDigital = async(req, res, next) => {
     const token = req.headers.DigitalAccess;
-    if(res.locals.userRole !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(token)){
+    if(res.locals.role !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(token)){
         throw Error();
     }
-    if(res.locals.userRole !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(req.query.orderId)){
+    if(res.locals.role !== 'SuperAdmin' && isUndefinedOrNullOrEmpty(req.query.orderId)){
         throw Error();
     }
     try{
-        if(res.locals.userRole === 'SuperAdmin'){
+        if(res.locals.role === 'SuperAdmin'){
             const product = await Product.findOne({
                 where: {
                     productId: req.params.id
