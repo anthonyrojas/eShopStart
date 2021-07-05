@@ -56,7 +56,7 @@ exports.updateShippingAddress = async(req,res,next) => {
 
 exports.getShippingAddresses = async(req, res, next) => {
     try{
-        const userRole = res.locals.userId;
+        const userRole = res.locals.role;
         const allowedRoles = ['SuperAdmin'];
         let addresses = null;
         if(!isUndefinedOrNullOrEmpty(req.params.userId) && allowedRoles.includes(userRole)){
