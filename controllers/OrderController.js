@@ -191,7 +191,7 @@ exports.getOrder = async(req, res, next) => {
         // const order = await Order.findByPk(req.params.id);
         const adminRoles = ['SuperAdmin', 'Admin'];
         let order = null;
-        if(adminRoles.includes(res.locals.userRole)){
+        if(adminRoles.includes(res.locals.role)){
             order = await Order.findOne({
                 where: {
                     id: req.params.id

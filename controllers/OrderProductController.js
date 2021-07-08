@@ -5,6 +5,28 @@ const OrderProduct = db.OrderProduct;
 const Product = db.Product;
 
 exports.updateOrderProduct = async(req, res) => {
+    const allowedRoles = ['SuperAdmin', 'Admin'];
+    //update the order product
+    try{
+        if(allowedRoles.includes(res.locals.role)){
+            const orderProduct = await OrderProduct.findOne({
+                where: {
+                    id: req.params.id
+                },
+                raw: true
+            });
+            orderProduct.orderStatus = req.body.orderStatus;
+            await orderProduct.save();
+            return res.status(200).json({
+                statusMessage: 'Updated order product status',
+                orderProduct
+            });
+        }else{
+            throw Error('You do not have permissions to update the order product');
+        }
+    }catch(e){
+        next(e);
+    }
 }
 
 exports.requestDigitalProductAccess = async(req, res, next) => {
