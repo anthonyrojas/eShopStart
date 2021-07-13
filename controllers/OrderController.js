@@ -200,7 +200,7 @@ exports.getOrder = async(req, res, next) => {
                     model: Product,
                     through: {
                         model: OrderProduct,
-                        attributes: ['orderStatus', 'amount', 'downloadsRemaining']
+                        attributes: ['id', 'orderStatus', 'amount', 'downloadsRemaining']
                     }
                 }, {
                     model: User,
@@ -219,7 +219,7 @@ exports.getOrder = async(req, res, next) => {
                     model: Product,
                     through: {
                         model: OrderProduct,
-                        attributes: ['orderStatus', 'amount', 'downloadsRemaining']
+                        attributes: ['id', 'orderStatus', 'amount', 'downloadsRemaining']
                     }  
                 }],
             });

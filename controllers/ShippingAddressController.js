@@ -57,7 +57,7 @@ exports.updateShippingAddress = async(req,res,next) => {
 exports.getShippingAddresses = async(req, res, next) => {
     try{
         const userRole = res.locals.role;
-        const allowedRoles = ['SuperAdmin'];
+        const allowedRoles = ['SuperAdmin', 'Admin'];
         let addresses = null;
         if(!isUndefinedOrNullOrEmpty(req.params.userId) && allowedRoles.includes(userRole)){
             addresss = await ShippingAddress.findAll({
@@ -85,7 +85,7 @@ exports.getShippingAddresses = async(req, res, next) => {
 exports.getShippingAddress = async(req, res, next) => {
     try{
         const userRole = res.locals.role;
-        const allowedRoles = ['SuperAdmin'];
+        const allowedRoles = ['SuperAdmin', 'Admin'];
         const shippingAddress = await ShippingAddress.findByPk(req.params.id, {
             raw: true
         });
