@@ -61,7 +61,7 @@ exports.addAppSetting = async(req, res, next) => {
                         return res.status(400).json({
                             type: 'ValidationError',
                             statusMessage: 'The address is not valid.'
-                        })
+                        });
                     }
                 }
                 const appSetting = await AppSetting.create({
@@ -125,7 +125,7 @@ exports.updateAppSetting = async(req, res, next) => {
 
 exports.getAppSettings = async(req, res, next) => {
     const userRole = res.locals.role;
-    const allowedRoles = ['SuperAdmin', 'Admin'];
+    const allowedRoles = ['SuperAdmin'];
     try{
         if(allowedRoles.includes(userRole)){
             const appSettings = await AppSetting.findAll();
@@ -146,7 +146,7 @@ exports.getAppSettings = async(req, res, next) => {
 
 exports.getAppSetting = async(req, res, next) => {
     const userRole = res.locals.role;
-    const allowedRoles = ['SuperAdmin', 'Admin'];
+    const allowedRoles = ['SuperAdmin'];
     try{
         if(allowedRoles.includes(userRole)){
             const appSetting = await AppSetting.findByPk(req.params.id);
