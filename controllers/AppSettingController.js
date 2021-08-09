@@ -90,7 +90,6 @@ exports.updateAppSetting = async(req, res, next) => {
     const allowedRoles = ['SuperAdmin'];
     try{
         if(allowedRoles.includes(userRole)){
-            let updatedRows = null;
             if(req.body.category === 'from_address'){
                 const fromAddress = await shippo.address.create({
                     name: req.body.content.name,
