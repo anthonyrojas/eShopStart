@@ -125,7 +125,9 @@ exports.updateAppSetting = async(req, res, next) => {
                 })
             }else{
                 const appSetting = await AppSetting.findOne({
-                    id: req.params.id
+                    where: {
+                        id: req.params.id
+                    }
                 });
                 return res.status(200).json({
                     statusMessage: 'App setting updated.',
