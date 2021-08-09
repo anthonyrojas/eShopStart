@@ -7,7 +7,7 @@ const Product = db.Product;
 
 exports.validateAddress = async(req, res, next) => {
     //validate the to address
-    const toAddress = shippo.address.create({
+    const toAddress = await shippo.address.create({
         name: req.body.name,
         street1: req.body.street,
         city: req.body.city,
@@ -51,7 +51,7 @@ exports.calculateShippingRates = async(req, res, next) => {
             height: parcelHeight,
             distance_unit: "in",
             weight: Number(res.locals.packageDimensions.weight),
-            mass_unit: "oz"
+            mass_unit: "oz",
         });
         //create a shipment
         const shipment = shippo.shipment.create({

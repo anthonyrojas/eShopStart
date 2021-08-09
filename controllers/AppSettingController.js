@@ -44,7 +44,7 @@ exports.addAppSetting = async(req, res, next) => {
                 //check if this is the from address
                 if(req.body.category === 'from_address'){
                     //validate it with shippo and save the shippo address id
-                    const fromAddress = shippo.address.create({
+                    const fromAddress = await shippo.address.create({
                         name: req.body.content.name,
                         street1: req.body.content.street,
                         city: req.body.content.city,
@@ -90,6 +90,28 @@ exports.updateAppSetting = async(req, res, next) => {
     const allowedRoles = ['SuperAdmin'];
     try{
         if(allowedRoles.includes(userRole)){
+            let updatedRows = null;
+            if(req.body.category === 'from_address'){
+                const fromAddress = await shippo.address.create({
+                    name: req.body.content.name,
+                    street1: req.body.content.street,
+                    city: req.body.content.city,
+                    state: req.body.content.state,
+                    zip: req.body.content.zip,
+                    country: req.body.content.country,
+                    validate: true
+                });
+                if(fromAddress.validation_results.is_valid){
+                    //save the object id
+                    req.body.content.shippoId = fromAddress.object_id;
+                }else{
+                    //inform the client the address is invalid
+                    return res.status(400).json({
+                        type: 'ValidationError',
+                        statusMessage: 'The address is not valid.'
+                    });
+                }
+            }
             const updatedRows = await AppSetting.update({
                 content: req.body.content
             }, {
