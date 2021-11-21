@@ -60,7 +60,7 @@ exports.getShippingAddresses = async(req, res, next) => {
         const allowedRoles = ['SuperAdmin', 'Admin'];
         let addresses = null;
         if(!isUndefinedOrNullOrEmpty(req.params.userId) && allowedRoles.includes(userRole)){
-            addresss = await ShippingAddress.findAll({
+            addresses = await ShippingAddress.findAll({
                 where: {
                     userId: req.params.userId
                 }
